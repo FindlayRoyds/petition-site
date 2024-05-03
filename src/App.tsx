@@ -1,26 +1,17 @@
-import React from 'react';
-import './App.css';
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
-import Layout from "./components/Layout";
-// import Users from "./components/Users";
-// import User from "./components/User";
-// import NotFound from "./components/NotFound";
-// import UserList from "./components/UserList";
-
+import React from 'react'
+import './App.css'
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
+import MainLayout from "./components/MainLayout"
 
 function App() {
-  return (
-      <div className="App">
+    return (
         <Router>
-          <div>
             <Routes>
-                <Route path="/users/:id" element={<Layout/>}/>
-                <Route path="*" element={<Layout/>}/>
+                <Route path="/users/:id" element={<MainLayout/>}/>
+                <Route path="*" element={<MainLayout/>}/>
             </Routes>
-          </div>
         </Router>
-      </div>
-  );
+    )
 }
 
-export default App;
+export default App

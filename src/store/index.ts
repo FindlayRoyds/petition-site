@@ -1,19 +1,20 @@
-import create from 'zustand';
+import create from 'zustand'
+import {LightTheme} from "baseui"
 
 interface AppState {
-    theme: string;
-    setTheme: (theme: string) => void;
+    theme: any
+    setTheme: (theme: any) => void
 }
 
-const getLocalStorage = (key: string): string => JSON.parse(window.localStorage.getItem(key) as string);
-const setLocalStorage = (key: string, value:string) => window.localStorage.setItem(key, value);
+const getLocalStorage = (key: any): string => JSON.parse(window.localStorage.getItem(key) as any)
+const setLocalStorage = (key: any, value:string) => window.localStorage.setItem(key, JSON.stringify(value))
 
 const useStore = create<AppState>((set) => ({
-    theme: getLocalStorage('theme'),
-    setTheme: (theme: string) => set(() => {
+    theme: getLocalStorage('theme') || LightTheme,
+    setTheme: (theme: any) => set(() => {
         setLocalStorage('theme', theme)
         return {theme: theme}
     }),
 }))
 
-export const useAppStore = useStore;
+export const useAppStore = useStore
