@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Search, Show} from "baseui/icon";
+import {Search, Show, ChevronDown} from "baseui/icon";
 import { Input } from "baseui/input";
 import {Button, KIND, SHAPE, SIZE} from "baseui/button";
 import {useStyletron} from "baseui";
@@ -32,10 +32,31 @@ export default function SearchBar() {
                     },
                 }}
                 endEnhancer={
-                    <button className={css({backgroundColor: "transparent", border: "0px solid black", cursor: "pointer"})}
-                            onClick={() => {console.log("search pressed")}}>
+                <>
+                    <div className={`${css({
+                        backgroundColor: "transparent",
+                        border: "0px solid black",
+                        cursor: "pointer",
+                        width: isFocused ? "100px" : 0,
+                        transition: "width 0.5s ease-out, opacity 0.5s ease-out",
+                    })} fade ${isFocused ? 'show' : ''}`}>
+                        <Button kind={KIND.tertiary} size={SIZE.compact} overrides={{
+                            BaseButton: {
+                                style: () => ({
+                                    height: '80%',
+                                    whiteSpace: 'nowrap'
+                                }),
+                            },
+                        }}
+                        endEnhancer={() => <ChevronDown title="" />}>Advanced</Button>
+                    </div>
+                    <button
+                        className={css({backgroundColor: "transparent", border: "0px solid black", cursor: "pointer"})}
+                        onClick={() => {
+                            console.log("search pressed")}}>
                         <Search size={24} $color={theme.colors.primary}/>
                     </button>
+                </>
                 }
                 placeholder={isFocused ? "" : "Search petitions"}
 
