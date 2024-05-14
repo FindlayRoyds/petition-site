@@ -1,16 +1,22 @@
+import React, { ReactNode } from 'react';
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import {useStyletron} from "baseui"
 
-const MainLayout = () => {
-    return (
-        <div>
-            <Header></Header>
-            <main>
-                <Outlet /> {/* This is where the child routes will render */}
-            </main>
-        </div>
-    )
+interface MainLayoutProps {
+  children?: ReactNode;
 }
 
-export default MainLayout
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  return (
+    <div>
+      <Header></Header>
+      <main>
+        <Outlet /> {/* This is where the child routes will render */}
+        {children}
+      </main>
+    </div>
+  );
+};
+
+export default MainLayout;

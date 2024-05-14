@@ -2,12 +2,14 @@ import React from 'react'
 import './App.css'
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
 import MainLayout from "./components/MainLayout"
+import PetitionCard from './components/PetitionCard'
+import PetitionCardList from './components/PetitionCardList'
 
 function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/users/:id" element={<MainLayout/>}/>
+                <Route path="/test" element={<MainLayout><PetitionCardList/></MainLayout>}/>
                 <Route path="*" element={<MainLayout/>}/>
             </Routes>
         </Router>

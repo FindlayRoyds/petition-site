@@ -5,7 +5,7 @@ import { Provider as StyletronProvider } from "styletron-react"
 import { Client as Styletron } from "styletron-engine-monolithic"
 import {LightTheme, DarkTheme, BaseProvider, useStyletron} from "baseui"
 import App from './App'
-import {useAppStore} from "./store"
+import {usePersistentStore} from "./store"
 
 const engine = new Styletron()
 const root = ReactDOM.createRoot(
@@ -14,7 +14,7 @@ const root = ReactDOM.createRoot(
 
 const RootComponent: React.FC = () => {
     const [css] = useStyletron()
-    const theme = useAppStore(state => state.theme)
+    const theme = usePersistentStore(state => state.theme)
 
     return (
         <BaseProvider theme={theme}>

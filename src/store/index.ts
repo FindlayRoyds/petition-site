@@ -1,15 +1,20 @@
-import create from 'zustand'
-import {LightTheme} from "baseui"
+import { create } from 'zustand'
+import { LightTheme } from "baseui"
 
-interface AppState {
+interface PersistentStorage {
     theme: any
     setTheme: (theme: any) => void
+}
+
+interface TemporaryStorage {
+    test: boolean
+    setTest: (test: boolean) => void
 }
 
 const getLocalStorage = (key: any): string => JSON.parse(window.localStorage.getItem(key) as any)
 const setLocalStorage = (key: any, value:string) => window.localStorage.setItem(key, JSON.stringify(value))
 
-const useStore = create<AppState>((set) => ({
+export const usePersistentStore = create<PersistentStorage>((set) => ({
     theme: getLocalStorage('theme') || LightTheme,
     setTheme: (theme: any) => set(() => {
         setLocalStorage('theme', theme)
@@ -17,4 +22,9 @@ const useStore = create<AppState>((set) => ({
     }),
 }))
 
-export const useAppStore = useStore
+export const useTemporaryStore = create<TemporaryStorage>((set) => ({
+    test: false,
+    setTest: (test: boolean) => set(() => {
+        return { test }
+    }),
+}))

@@ -1,6 +1,6 @@
 import * as React from "react"
 import {DarkTheme, LightTheme, useStyletron} from "baseui"
-import {useAppStore} from "../store"
+import {usePersistentStore} from "../store"
 import ThemeToggle from "./ThemeToggle";
 import SearchBar from "./SearchBar";
 import Logo from "./Logo";

@@ -2,12 +2,12 @@ import * as React from "react";
 import { Button, SHAPE, KIND, SIZE } from "baseui/button";
 import { ButtonGroup } from "baseui/button-group";
 import { Show } from "baseui/icon";
-import {useAppStore} from "../store";
+import {usePersistentStore} from "../store";
 import {DarkTheme, LightTheme} from "baseui";
 
 export default () => {
-    const themeStore = useAppStore(state => state.theme)
-    const setTheme = useAppStore(state => state.setTheme)
+    const themeStore = usePersistentStore(state => state.theme)
+    const setTheme = usePersistentStore(state => state.setTheme)
 
     const switchTheme = () => {
         console.log(themeStore)

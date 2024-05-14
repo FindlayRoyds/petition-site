@@ -9,6 +9,7 @@
     "@types/baseui": "^8.0.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.96",
+    "axios": "^1.6.8",
     "baseui": "^14.0.0",
     "mini-css-extract-plugin": "^2.9.0",
     "react": "^18.3.1",

@@ -1,10 +1,10 @@
 import * as React from "react";
 import {useStyletron} from "baseui";
-import {useAppStore} from "../store";
+import {usePersistentStore} from "../store";
 
 export default () => {
     const [css, theme] = useStyletron()
-    const themeStore = useAppStore(state => state.theme)
+    const themeStore = usePersistentStore(state => state.theme)
 
     return (
         <button className={css({backgroundColor: "transparent", border: "0px solid black", cursor: "pointer"})}>

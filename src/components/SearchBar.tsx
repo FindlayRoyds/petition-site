@@ -13,7 +13,7 @@ import {
     LabelSmall,
     LabelXSmall,
 } from "baseui/typography";
-import { StatefulPopover } from "baseui/popover";
+import { Popover, PLACEMENT } from "baseui/popover";
 import { Block } from "baseui/block";
 
 export default function SearchBar() {
@@ -21,24 +21,31 @@ export default function SearchBar() {
     const [isFocused, setIsFocused] = React.useState(false);
     const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false);
 
+    const inputRef = React.useRef<HTMLInputElement>(null);
+
     const handleFocus = () => setIsFocused(true);
     const handleBlur = () => {
         if (!isAdvancedOpen) {
             setIsFocused(false)
         }
     }
-    const updateAdvancedOpen = (open: boolean) => {
+    const updateAdvancedOpen = (open: boolean, keepOpen: boolean) => {
         setIsAdvancedOpen(open)
         if (open) {
             setIsFocused(true)
         } else {
-            setIsFocused(false)
+            if (!keepOpen) {
+                setIsFocused(false)
+            } else {
+                setTimeout(() => inputRef.current?.focus(), 0);
+            }
         }
     }
 
     return (
         <div className={css({width: isFocused ? '700px' : '300px', transition: `width ${theme.animation.timing500} ${theme.animation.easeOutQuinticCurve}`})}>
             <Input
+                inputRef={inputRef}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 overrides={{
@@ -68,17 +75,15 @@ export default function SearchBar() {
                         overflow: 'hidden',
                         
                     })} fade ${isFocused ? 'show' : ''}`}>
-                        <StatefulPopover
+                        <Popover
                             content={() => (
-                                <Block padding={"20px"}>
-                                    Hello, there! 👋
-                                    <Input placeholder="Focusable Element" />
-                                </Block>
+                                <Input placeholder="Focusable Element" />
                             )}
+                            isOpen={isAdvancedOpen}
                             returnFocus
                             autoFocus
-                            onOpen={() => updateAdvancedOpen(true)}
-                            onClose={() => updateAdvancedOpen(false)}
+                            placement={PLACEMENT.bottomRight}
+                            onClickOutside={() => {updateAdvancedOpen(false, false)}}
                         >
                             <Button kind={KIND.tertiary} size={SIZE.compact} overrides={{
                                 BaseButton: {
@@ -88,15 +93,14 @@ export default function SearchBar() {
                                     }),
                                 },
                             }}
-                            endEnhancer={() => <ChevronDown title="" />}>
+                            endEnhancer={() => <ChevronDown title="" />}
+                            onMouseDown={() => {updateAdvancedOpen(!isAdvancedOpen, true)}}>
                                 <LabelMedium>Advanced</LabelMedium>
                             </Button>
-                        </StatefulPopover>
+                        </Popover>
                     </div>
                     <button
-                        className={css({backgroundColor: "transparent", border: "0px solid black", cursor: "pointer"})}
-                        onClick={() => {
-                            console.log("search pressed")}}>
+                        className={css({backgroundColor: "transparent", border: "0px solid black", cursor: "pointer"})}>
                         <Search size={24} $color={theme.colors.primary}/>
                     </button>
                 </>
