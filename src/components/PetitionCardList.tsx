@@ -23,37 +23,44 @@ export default function PetitionCardList() {
     const [numberOfPages, setNumberOfPages] = React.useState(1)
     const numPetitionsPerPage = 8
 
+    const getPetitions = () => {
+        let apiRequest = "http://localhost:4941/api/v1/petitions"
+        apiRequest += `?startIndex=${(currentPage - 1) * numPetitionsPerPage}`
+        apiRequest += `&count=${numPetitionsPerPage}`
+        if (term != null) {
+            apiRequest += `&q=${term}`
+        }
+        if (sortBy != null) {
+            apiRequest += `&sortBy=${sortBy}`
+        }
+        axios.get(apiRequest)
+            .then((response) => {
+                setPetitions(response.data.petitions)
+                setNumberOfPages(Math.ceil(response.data.count / numPetitionsPerPage))
+            }, (error) => {
+                console.log("error :(")
+            })
+    }
+    const getCategories = () => {
+        let apiRequest = "http://localhost:4941/api/v1/petitions/categories"
+        axios.get(apiRequest)
+            .then((response) => {
+                setCategories(response.data)
+            }, (error) => {
+                console.log("error :(")
+            })
+    }
+
     React.useEffect(() => {
-        const getPetitions = () => {
-            let apiRequest = "http://localhost:4941/api/v1/petitions"
-            apiRequest += `?startIndex=${(currentPage - 1) * numPetitionsPerPage}`
-            apiRequest += `&count=${numPetitionsPerPage}`
-            if (term != null) {
-                apiRequest += `&q=${term}`
-            }
-            if (sortBy != null) {
-                apiRequest += `&sortBy=${sortBy}`
-            }
-            axios.get(apiRequest)
-                .then((response) => {
-                    setPetitions(response.data.petitions)
-                    setNumberOfPages(Math.ceil(response.data.count / numPetitionsPerPage))
-                }, (error) => {
-                    console.log("error :(")
-                })
-        }
-        const getCategories = () => {
-            let apiRequest = "http://localhost:4941/api/v1/petitions/categories"
-            axios.get(apiRequest)
-                .then((response) => {
-                    setCategories(response.data)
-                }, (error) => {
-                    console.log("error :(")
-                })
-        }
         getPetitions()
         getCategories()
-    }, [setPetitions, term, currentPage])
+    }, [setPetitions, currentPage])
+
+    React.useEffect(() => {
+        setCurrentPage(1)
+        getPetitions()
+        getCategories()
+    }, [term])
 
     return (
         <div

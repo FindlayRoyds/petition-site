@@ -7,14 +7,17 @@ import { useNavigate } from 'react-router-dom'
 import { LabelMedium } from "baseui/typography";
 import { Popover, PLACEMENT } from "baseui/popover";
 import { Block } from "baseui/block";
+import { useSearchParams } from 'react-router-dom'
 import SearchAdvanced from "./SearchAdvanced";
 
 export default function SearchBar() {
     const [css, theme] = useStyletron()
     const [isFocused, setIsFocused] = React.useState(false)
     const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false)
-    const [searchValue, setSearchValue] = React.useState('') // Add this state
+    const [searchParams] = useSearchParams()
+    const term = searchParams.get('term')
     const [sortBy, setSortBy] = React.useState('')
+    const [searchValue, setSearchValue] = React.useState(term || "")
 
     const inputRef = React.useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
@@ -26,24 +29,25 @@ export default function SearchBar() {
         }
     }
 
-    const updateSearchValue = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setSearchValue(event.target.value)
-    }
-    const handleSearchKeyDown = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            if (searchValue == "") {
-                navigate(`/search`)
-            } else {
-                navigate(`/search?term=${searchValue}`)
-            }
-        }
-    }
-    const handleSearchClick = () => {
+    const search = () => {
         if (searchValue == "") {
             navigate(`/search`)
         } else {
             navigate(`/search?term=${searchValue}`)
         }
+        
+    }
+
+    const updateSearchValue = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setSearchValue(event.target.value)
+    }
+    const handleSearchKeyDown = (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            search()
+        }
+    }
+    const handleSearchClick = () => {
+        search()
     }
 
     const updateAdvancedOpen = (open: boolean, keepOpen: boolean) => {
@@ -66,6 +70,7 @@ export default function SearchBar() {
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onChange={updateSearchValue}
+                value={searchValue}
                 onKeyDown={handleSearchKeyDown}
                 overrides={{
                     Root: {

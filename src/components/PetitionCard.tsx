@@ -73,18 +73,30 @@ export default function PetitionCard({ petition, category }: PetitionCardProps) 
                                         })
                                         }
                                     }}>
-                                <img
-                                    src={image.src}
-                                    className={css({width: "100%", height: "100%", borderRadius: theme.borders.radius300, cursor: 'pointer'})}
-                                    onClick={() => {
-                                        navigateToPetition()
-                                    }}
-                                />
+                                <div className={css({position: 'relative', width: "100%", height: "100%"})}>
+                                    <img
+                                        src={image.src}
+                                        className={css({width: "100%", height: "100%", borderBottomLeftRadius: "8px", borderBottomRightRadius: "8px", borderTopLeftRadius: "14px", borderTopRightRadius: "14px", cursor: 'pointer'})}
+                                        onClick={() => {
+                                            navigateToPetition()
+                                        }}
+                                    />
+                                    <div className={css({
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100%',
+                                        background: 'radial-gradient(circle at center, transparent, rgba(0, 0, 0, 0.2) 200%)',
+                                        borderRadius: '14px',
+                                        pointerEvents: 'none'
+                                    })} />
+                                </div>
                                 </Badge>
                                 : <Skeleton height="100%" width="100%" animation overrides={{
                                     Root: {
                                     style: ({ $theme }) => ({
-                                        borderRadius: theme.borders.radius500
+                                        borderRadius: "20px"
                                     })
                                     }
                                 }}>
