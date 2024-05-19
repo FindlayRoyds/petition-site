@@ -28,7 +28,7 @@ export default function PetitionCard({ petition, category }: PetitionCardProps) 
     image.onload = () => setImageLoaded(true);
 
     const badgeHue = category.categoryId * 137.508;
-    const badgeColor = `hsl(${badgeHue % 360}, 50%, 50%)`;
+    const badgeColor = `hsl(${badgeHue % 360}, 60%, 50%)`;
 
     const navigate = useNavigate()
 
@@ -53,7 +53,7 @@ export default function PetitionCard({ petition, category }: PetitionCardProps) 
                 style: {
                     border: `2px ${theme.borders.border400.borderStyle} ${theme.borders.border400.borderColor}`,
                     borderRadius: theme.borders.radius500,
-                    boxShadow: theme.lighting.shallowBelow,
+                    boxShadow: theme.lighting.deepBelow,
                     backgroundColor: theme.colors.backgroundSecondary
                 },
             },
