@@ -13,8 +13,8 @@ import { useSearchParams } from 'react-router-dom'
 
 export default function PetitionCardList() {
     const [searchParams] = useSearchParams()
-    const term = searchParams.get('term')
-    const sortBy = searchParams.get('sort')
+    const searchTerm = searchParams.get('searchTerm')
+    const sortBy = searchParams.get('sortBy')
     const [css, theme] = useStyletron()
 
     const [petitions, setPetitions] = useState<Petition[]>([])
@@ -27,8 +27,8 @@ export default function PetitionCardList() {
         let apiRequest = "http://localhost:4941/api/v1/petitions"
         apiRequest += `?startIndex=${(currentPage - 1) * numPetitionsPerPage}`
         apiRequest += `&count=${numPetitionsPerPage}`
-        if (term != null) {
-            apiRequest += `&q=${term}`
+        if (searchTerm != null) {
+            apiRequest += `&q=${searchTerm}`
         }
         if (sortBy != null) {
             apiRequest += `&sortBy=${sortBy}`
@@ -60,7 +60,7 @@ export default function PetitionCardList() {
         setCurrentPage(1)
         getPetitions()
         getCategories()
-    }, [term])
+    }, [searchTerm, sortBy])
 
     return (
         <div

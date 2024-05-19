@@ -13,11 +13,12 @@ import SearchAdvanced from "./SearchAdvanced";
 export default function SearchBar() {
     const [css, theme] = useStyletron()
     const [isFocused, setIsFocused] = React.useState(false)
-    const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false)
     const [searchParams] = useSearchParams()
-    const term = searchParams.get('term')
-    const [sortBy, setSortBy] = React.useState('')
-    const [searchValue, setSearchValue] = React.useState(term || "")
+    const sortBy = searchParams.get('sortBy')
+    const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false)
+    const searchTermParam = searchParams.get('searchTerm')
+    const [searchTerm, setSearchTerm] = React.useState(searchTermParam || "")
+    const [isAdvancedShown, setIsAdvancedShown] = React.useState(sortBy !== null)
 
     const inputRef = React.useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
@@ -29,17 +30,24 @@ export default function SearchBar() {
         }
     }
 
-    const search = () => {
-        if (searchValue == "") {
-            navigate(`/search`)
-        } else {
-            navigate(`/search?term=${searchValue}`)
+    const generateSearchUrl = (params: {[key: string]: string | null}) => {
+        const searchParams = new URLSearchParams();
+
+        for (const key in params) {
+            if (params[key] !== null && params[key] !== "") {
+                searchParams.append(key, params[key] as string);
+            }
         }
-        
+
+        return `/search?${searchParams.toString()}`;
+    }
+
+    const search = () => {
+        navigate(generateSearchUrl({ searchTerm, sortBy }));
     }
 
     const updateSearchValue = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setSearchValue(event.target.value)
+        setSearchTerm(event.target.value)
     }
     const handleSearchKeyDown = (event: React.KeyboardEvent) => {
         if (event.key === 'Enter') {
@@ -63,14 +71,18 @@ export default function SearchBar() {
         }
     }
 
+    React.useEffect(() => {
+        setIsAdvancedShown(sortBy !== null || isFocused)
+    }, [sortBy, isFocused])
+
     return (
-        <div className={css({width: isFocused ? '700px' : '300px', transition: `width ${theme.animation.timing500} ${theme.animation.easeOutQuinticCurve}`})}>
+        <div className={css({width: isFocused ? '700px' : '350px', transition: `width ${theme.animation.timing500} ${theme.animation.easeOutQuinticCurve}`})}>
             <Input
                 inputRef={inputRef}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onChange={updateSearchValue}
-                value={searchValue}
+                value={searchTerm}
                 onKeyDown={handleSearchKeyDown}
                 overrides={{
                     Root: {
@@ -93,9 +105,9 @@ export default function SearchBar() {
                         backgroundColor: "transparent",
                         border: "0px solid black",
                         cursor: "pointer",
-                        width: isFocused ? "115px" : 0,
+                        width: isAdvancedShown ? "115px" : 0,
                         transition: `opacity ${theme.animation.timing500} ${theme.animation.easeOutQuinticCurve}, width ${theme.animation.timing500} ${theme.animation.easeOutQuinticCurve}`,
-                        opacity: isFocused ? 1 : 0,
+                        opacity: isAdvancedShown ? 1 : 0,
                         overflow: 'hidden',
                         
                     })} fade ${isFocused ? 'show' : ''}`}>
