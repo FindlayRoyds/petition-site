@@ -21,7 +21,7 @@ export default function PetitionCardList() {
     const [categories, setCategories] = useState<Category[]>([])
     const [currentPage, setCurrentPage] = React.useState(1)
     const [numberOfPages, setNumberOfPages] = React.useState(1)
-    const numPetitionsPerPage = 8
+    const numPetitionsPerPage = 10
 
     const getPetitions = () => {
         let apiRequest = "http://localhost:4941/api/v1/petitions"
@@ -72,7 +72,7 @@ export default function PetitionCardList() {
             <div
                 className={css({
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
                     gridGap: theme.sizing.scale600,
                     padding: theme.sizing.scale600,
                     width: '100%',
