@@ -53,7 +53,7 @@ export default function PetitionCard({ petition, category }: PetitionCardProps) 
                 style: {
                     border: `2px ${theme.borders.border400.borderStyle} ${theme.borders.border400.borderColor}`,
                     borderRadius: theme.borders.radius500,
-                    boxShadow: theme.lighting.deepBelow,
+                    boxShadow: theme.lighting.shallowBelow,
                     backgroundColor: theme.colors.backgroundSecondary
                 },
             },

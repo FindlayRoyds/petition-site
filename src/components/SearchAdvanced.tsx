@@ -9,6 +9,8 @@ import { Popover, PLACEMENT } from "baseui/popover";
 import { Block } from "baseui/block"
 import {Combobox} from 'baseui/combobox';
 import {FormControl} from 'baseui/form-control';
+import { useSearchParams } from 'react-router-dom'
+
 
 type SortOptionT = {label: string; id: string};
 const sortByOptions: SortOptionT[] = [
@@ -21,11 +23,23 @@ const sortByOptions: SortOptionT[] = [
 ];
 
 export default function SearchBar() {
-    const [sortBy, setSortBy] = React.useState('')
+    const [searchParams] = useSearchParams()
+    const sortByParam = searchParams.get('sortBy')
+    const [sortBy, setSortBy] = React.useState(sortByParam || "")
     const [css, theme] = useStyletron()
 
     return (
-        <Block style={{ padding: "16px", width: "250px" }}>
+        <Block
+            style={{
+                padding: "16px",
+                width: "250px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                alignItems: "center", // Center the children horizontally
+                margin: "0 auto", // Center the block horizontally
+            }}
+        >
             <Combobox
                 value={sortBy}
                 onChange={setSortBy}
@@ -34,16 +48,21 @@ export default function SearchBar() {
                 name="input-overrides"
                 clearable
                 overrides={{
+                    Root: {
+                        style: {
+                            width: "100%",
+                        }
+                    },
                     Input: {
                         props: {
-                            placeholder: 'Sort by',
-                        },
+                            placeholder: "Sort by",
+                        }
                     },
                     ListBox: {
                         style: ({ $theme }) => ({
                             borderRadius: "12px",
                             paddingRight: "12px",
-                            paddingLeft: "12px"
+                            paddingLeft: "12px",
                         })
                     },
                     ListItem: {
@@ -53,6 +72,7 @@ export default function SearchBar() {
                     }
                 }}
             />
+            <Button style={{ width: "80%" }}>Apply</Button>
         </Block>
     )
 }
