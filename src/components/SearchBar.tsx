@@ -3,32 +3,49 @@ import {Search, ChevronDown} from "baseui/icon";
 import { Input } from "baseui/input";
 import {Button, KIND, SIZE} from "baseui/button";
 import {useStyletron} from "baseui";
-import {
-    ParagraphLarge,
-    ParagraphMedium,
-    ParagraphSmall,
-    ParagraphXSmall,
-    LabelLarge,
-    LabelMedium,
-    LabelSmall,
-    LabelXSmall,
-} from "baseui/typography";
+import { useNavigate } from 'react-router-dom'
+import { LabelMedium } from "baseui/typography";
 import { Popover, PLACEMENT } from "baseui/popover";
 import { Block } from "baseui/block";
+import SearchAdvanced from "./SearchAdvanced";
 
 export default function SearchBar() {
     const [css, theme] = useStyletron()
-    const [isFocused, setIsFocused] = React.useState(false);
-    const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false);
+    const [isFocused, setIsFocused] = React.useState(false)
+    const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false)
+    const [searchValue, setSearchValue] = React.useState('') // Add this state
+    const [sortBy, setSortBy] = React.useState('')
 
-    const inputRef = React.useRef<HTMLInputElement>(null);
+    const inputRef = React.useRef<HTMLInputElement>(null)
+    const navigate = useNavigate()
 
-    const handleFocus = () => setIsFocused(true);
+    const handleFocus = () => setIsFocused(true)
     const handleBlur = () => {
         if (!isAdvancedOpen) {
             setIsFocused(false)
         }
     }
+
+    const updateSearchValue = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setSearchValue(event.target.value)
+    }
+    const handleSearchKeyDown = (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            if (searchValue == "") {
+                navigate(`/search`)
+            } else {
+                navigate(`/search?term=${searchValue}`)
+            }
+        }
+    }
+    const handleSearchClick = () => {
+        if (searchValue == "") {
+            navigate(`/search`)
+        } else {
+            navigate(`/search?term=${searchValue}`)
+        }
+    }
+
     const updateAdvancedOpen = (open: boolean, keepOpen: boolean) => {
         setIsAdvancedOpen(open)
         if (open) {
@@ -37,7 +54,7 @@ export default function SearchBar() {
             if (!keepOpen) {
                 setIsFocused(false)
             } else {
-                setTimeout(() => inputRef.current?.focus(), 0);
+                setTimeout(() => inputRef.current?.focus(), 0)
             }
         }
     }
@@ -48,6 +65,8 @@ export default function SearchBar() {
                 inputRef={inputRef}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
+                onChange={updateSearchValue}
+                onKeyDown={handleSearchKeyDown}
                 overrides={{
                     Root: {
                         style: () => ({
@@ -77,19 +96,27 @@ export default function SearchBar() {
                     })} fade ${isFocused ? 'show' : ''}`}>
                         <Popover
                             content={() => (
-                                <Input placeholder="Focusable Element" />
+                                <SearchAdvanced/>
                             )}
                             isOpen={isAdvancedOpen}
                             returnFocus
                             autoFocus
                             placement={PLACEMENT.bottomRight}
                             onClickOutside={() => {updateAdvancedOpen(false, false)}}
+                            overrides={{
+                                Inner: {
+                                    style: ({ $theme }) => ({
+                                    outline: `${$theme.colors.backgroundTertiary} solid 2px`,
+                                    backgroundColor: $theme.colors.backgroundPrimary
+                                    })
+                                }
+                            }}
                         >
                             <Button kind={KIND.tertiary} size={SIZE.compact} overrides={{
                                 BaseButton: {
                                     style: () => ({
                                         height: '80%',
-                                        whiteSpace: 'nowrap'
+                                        whiteSpace: 'nowrap',
                                     }),
                                 },
                             }}
@@ -100,13 +127,13 @@ export default function SearchBar() {
                         </Popover>
                     </div>
                     <button
-                        className={css({backgroundColor: "transparent", border: "0px solid black", cursor: "pointer"})}>
+                        className={css({backgroundColor: "transparent", border: "0px solid black", cursor: "pointer"})}
+                        onClick={handleSearchClick}>
                         <Search size={24} $color={theme.colors.primary}/>
                     </button>
                 </>
                 }
                 placeholder={isFocused ? "" : "Search petitions"}
-
             />
         </div>
     );

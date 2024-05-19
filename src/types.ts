@@ -9,3 +9,8 @@ export interface Petition {
     supportingCost: number
     title: number
 }
+
+export interface Category {
+    categoryId: number,
+    name: string
+}

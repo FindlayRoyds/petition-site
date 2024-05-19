@@ -9,8 +9,11 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/test" element={<MainLayout><PetitionCardList/></MainLayout>}/>
-                <Route path="*" element={<MainLayout/>}/>
+                
+                <Route path="/search" element={<MainLayout><PetitionCardList/></MainLayout>}/>
+                <Route path="/petition/:id" element={<MainLayout>petition</MainLayout>}/>
+                <Route path="/user/:id" element={<MainLayout>user</MainLayout>}/>
+                <Route path="*" element={<MainLayout>404 not found</MainLayout>}/>
             </Routes>
         </Router>
     )
