@@ -200,7 +200,7 @@ export default function SearchBar() {
                         setSortBy("")
                         setMinCost(100)
                         setSelectedCategories([])
-                        navigate(`/search?searchTerm=${searchTermParam}`)
+                        navigate(searchTermParam==null? "/search" : `/search?searchTerm=${searchTermParam}`)
                     }}
                     overrides={{
                         BaseButton: {

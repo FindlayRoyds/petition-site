@@ -81,76 +81,84 @@ export default function PetitionCardList() {
     }, [categoryIds, prevCategoryIds])
 
     return (
-        <div
-            className={css({
-                display: 'flex',
-                flexDirection: 'column',
-            })}
-        >
-            <div
-                className={css({
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                    gridGap: theme.sizing.scale600,
-                    padding: theme.sizing.scale600,
-                    width: '100%',
-                    boxSizing: 'border-box',
-                })}
-            >
-                {petitions.map((petition: Petition, index: any) => {
-                    const category = categories.find((category) => category.categoryId === petition.categoryId)
-                    if (!category) {
-                        return null
-                    }
-                    return (
-                        <PetitionCard petition={petition} category={category} key={index} />
-                    )
-                })}
-            </div>
-            <div
-                className={css({
-                    width: "100%",
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    paddingBottom: '24px',
-                    columnGap: "12px"
-                })}
-            >
-                <Button
-                    startEnhancer={
-                        <TriangleLeft size={24}/>
-                    }
-                    kind={KIND.tertiary}
-                    disabled={ currentPage == 1 }
-                    onClick={() => {
-                        setCurrentPage(1)
-                    }}
+        <div>
+            {(petitions.length == 0)?
+                <div className={css({ width: "100%", textAlign: "center", paddingTop: "16px", fontSize: "32px" })}>
+                    No petitions found
+                </div> : 
+
+                <div
+                    className={css({
+                        display: 'flex',
+                        flexDirection: 'column',
+                    })}
                 >
-                    Start
-                </Button>
-                <Pagination
-                    numPages={numberOfPages}
-                    currentPage={currentPage}
-                    onPageChange={({ nextPage }) => {
-                        setCurrentPage(
-                            Math.min(Math.max(nextPage, 1), numberOfPages)
+                <div
+                    className={css({
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                        gridGap: theme.sizing.scale600,
+                        padding: theme.sizing.scale600,
+                        width: '100%',
+                        boxSizing: 'border-box',
+                    })}
+                >
+                    {petitions.map((petition: Petition, index: any) => {
+                        const category = categories.find((category) => category.categoryId === petition.categoryId)
+                        if (!category) {
+                            return null
+                        }
+                        return (
+                            <PetitionCard petition={petition} category={category} key={index} />
                         )
-                    }}
-                />
-                <Button
-                    endEnhancer={
-                        <TriangleRight size={24}/>
-                    }
-                    kind={KIND.tertiary}
-                    disabled={currentPage == numberOfPages}
-                    onClick={() => {
-                        setCurrentPage(numberOfPages)
-                    }}
+                    })}
+                </div>
+                <div
+                    className={css({
+                        width: "100%",
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingBottom: '24px',
+                        columnGap: "12px"
+                    })}
                 >
-                    End
-                </Button>
+                    <Button
+                        startEnhancer={
+                            <TriangleLeft size={24}/>
+                        }
+                        kind={KIND.tertiary}
+                        disabled={ currentPage == 1 }
+                        onClick={() => {
+                            setCurrentPage(1)
+                        }}
+                    >
+                        Start
+                    </Button>
+                    <Pagination
+                        numPages={numberOfPages}
+                        currentPage={currentPage}
+                        onPageChange={({ nextPage }) => {
+                            setCurrentPage(
+                                Math.min(Math.max(nextPage, 1), numberOfPages)
+                            )
+                        }}
+                    />
+                    <Button
+                        endEnhancer={
+                            <TriangleRight size={24}/>
+                        }
+                        kind={KIND.tertiary}
+                        disabled={currentPage == numberOfPages}
+                        onClick={() => {
+                            setCurrentPage(numberOfPages)
+                        }}
+                    >
+                        End
+                    </Button>
+                </div>
             </div>
+            }
         </div>
     )
 }
