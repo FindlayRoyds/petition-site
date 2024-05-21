@@ -15,6 +15,9 @@ export default function PetitionCardList() {
     const [searchParams] = useSearchParams()
     const searchTerm = searchParams.get('searchTerm')
     const sortBy = searchParams.get('sortBy')
+    const minCost = searchParams.get('minCost')
+    const categoryIds= searchParams.getAll('categoryIds')
+    const [prevCategoryIds, setPrevCategoryIds] = React.useState([""]);
     const [css, theme] = useStyletron()
 
     const [petitions, setPetitions] = useState<Petition[]>([])
@@ -33,6 +36,10 @@ export default function PetitionCardList() {
         if (sortBy != null) {
             apiRequest += `&sortBy=${sortBy}`
         }
+        if (minCost != null) {
+            apiRequest += `&supportingCost=${minCost}`
+        }
+        apiRequest += categoryIds.map(id => `&categoryIds[]=${id}`).join('');
         axios.get(apiRequest)
             .then((response) => {
                 setPetitions(response.data.petitions)
@@ -60,7 +67,18 @@ export default function PetitionCardList() {
         setCurrentPage(1)
         getPetitions()
         getCategories()
-    }, [searchTerm, sortBy])
+        // setPrevCategoryIds(categoryIds)
+    }, [searchTerm, sortBy, minCost])
+
+    React.useEffect(() => {
+        if (JSON.stringify(prevCategoryIds) !== JSON.stringify(categoryIds)) {
+            console.log("ran")
+            setCurrentPage(1)
+            getPetitions()
+            getCategories()
+            setPrevCategoryIds(categoryIds)
+        }
+    }, [categoryIds, prevCategoryIds])
 
     return (
         <div

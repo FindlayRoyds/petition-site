@@ -66,11 +66,17 @@ export default function PetitionCard({ petition, category }: PetitionCardProps) 
                                 <Badge
                                     content={category.name}
                                     overrides={{
+                                        Root: {
+                                            style: ({ $theme }) => ({
+                                                width: "100%",
+                                                height: "100%"
+                                            })
+                                        },
                                         Badge: {
-                                        style: ({ $theme }) => ({
-                                            backgroundColor: badgeColor,
-                                            boxShadow: theme.lighting.shadow600
-                                        })
+                                            style: ({ $theme }) => ({
+                                                backgroundColor: badgeColor,
+                                                boxShadow: theme.lighting.shadow600,
+                                            })
                                         }
                                     }}>
                                 <img

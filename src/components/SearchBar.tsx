@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Search, ChevronDown} from "baseui/icon";
+import {Search, ChevronDown, ChevronUp} from "baseui/icon";
 import { Input } from "baseui/input";
 import {Button, KIND, SIZE} from "baseui/button";
 import {useStyletron} from "baseui";
@@ -12,13 +12,15 @@ import SearchAdvanced from "./SearchAdvanced";
 
 export default function SearchBar() {
     const [css, theme] = useStyletron()
-    const [isFocused, setIsFocused] = React.useState(false)
     const [searchParams] = useSearchParams()
     const sortBy = searchParams.get('sortBy')
-    const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false)
+    const minCost = searchParams.get('minCost')
     const searchTermParam = searchParams.get('searchTerm')
+    const categoryIds = searchParams.getAll('categoryIds')
     const [searchTerm, setSearchTerm] = React.useState(searchTermParam || "")
     const [isAdvancedShown, setIsAdvancedShown] = React.useState(sortBy !== null)
+    const [isFocused, setIsFocused] = React.useState(false)
+    const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false)
 
     const inputRef = React.useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
@@ -30,20 +32,26 @@ export default function SearchBar() {
         }
     }
 
-    const generateSearchUrl = (params: {[key: string]: string | null}) => {
+    const generateSearchUrl = (params: {[key: string]: string | string[] | null}) => {
         const searchParams = new URLSearchParams();
-
+    
         for (const key in params) {
             if (params[key] !== null && params[key] !== "") {
-                searchParams.append(key, params[key] as string);
+                if (Array.isArray(params[key])) {
+                    (params[key] as string[]).forEach(value => {
+                        searchParams.append(key, value);
+                    });
+                } else {
+                    searchParams.append(key, params[key] as string);
+                }
             }
         }
-
+    
         return `/search?${searchParams.toString()}`;
     }
 
     const search = () => {
-        navigate(generateSearchUrl({ searchTerm, sortBy }));
+        navigate(generateSearchUrl({ searchTerm, sortBy, minCost, categoryIds}));
     }
 
     const updateSearchValue = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -72,8 +80,8 @@ export default function SearchBar() {
     }
 
     React.useEffect(() => {
-        setIsAdvancedShown(sortBy !== null || isFocused)
-    }, [sortBy, isFocused])
+        setIsAdvancedShown((sortBy !== null || minCost !== null || categoryIds.length != 0) || isFocused)
+    }, [sortBy, isFocused, minCost])
 
     return (
         <div className={css({width: isFocused ? '700px' : '350px', transition: `width ${theme.animation.timing500} ${theme.animation.easeOutQuinticCurve}`})}>
@@ -137,7 +145,7 @@ export default function SearchBar() {
                                     }),
                                 },
                             }}
-                            endEnhancer={() => <ChevronDown title="" />}
+                            endEnhancer={() => isAdvancedOpen? <ChevronUp title="" /> : <ChevronDown title="" />}
                             onMouseDown={() => {updateAdvancedOpen(!isAdvancedOpen, true)}}>
                                 <LabelMedium>Advanced</LabelMedium>
                             </Button>
