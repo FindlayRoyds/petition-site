@@ -15,6 +15,7 @@ import { PetitionAdvanced } from '../types';
 import { StyledDivider, SIZE } from "baseui/divider";
 import axios from 'axios';
 import SupportTierList from './SupportTierList';
+import PetitionCard from './PetitionCard';
 
 
 export default function PetitionPage() {
@@ -30,9 +31,21 @@ export default function PetitionPage() {
     image.onload = () => setImageLoaded(true);
 
     const date = new Date;
-    const formattedDate = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+    const [formattedDate, setFormattedDate] = useState<String>("")
+    const [similarPetitions, setSimilarPetitions] = useState<Petition[]>([])
+    const [categories, setCategories] = useState<Category[]>([])
 
     const navigate = useNavigate()
+
+    const getCategories = () => {
+        let apiRequest = "http://localhost:4941/api/v1/petitions/categories"
+        axios.get(apiRequest)
+            .then((response) => {
+                setCategories(response.data)
+            }, (error) => {
+                console.log("error :(")
+            })
+    }
 
     React.useEffect(() => {
         const getPetition = () => {
@@ -45,10 +58,31 @@ export default function PetitionPage() {
                 })
         }
         getPetition()
-    })
+        getCategories()
+    }, [petitionId])
+
+    React.useEffect(() => {
+        const getSimilarPetitions = () => {
+            let apiRequest = `http://localhost:4941/api/v1/petitions/`
+            axios.get(apiRequest)
+                .then((response) => {
+                    setSimilarPetitions(response.data.petitions.filter((petition2: Petition) => (petition2.ownerId === petition?.ownerId || petition2.categoryId === petition?.categoryId) && petition2.petitionId != petition?.petitionId));
+                }, (error) => {
+                    console.log("error :(")
+                })
+        }
+        getSimilarPetitions()
+    }, [petition?.petitionId])
+
+    React.useEffect(() => {
+        if (petition) {
+            const date = new Date(petition.creationDate)
+            setFormattedDate(`${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`)
+        }
+    }, [petition?.creationDate])
 
     return (
-        <div className={css({ maxWidth: "1200px", margin: "0 auto", padding: "16px", paddingTop: "48px", display: "flex", flexDirection: "column", alignItems: "center", rowGap: "32px" })}>
+        <div className={css({ maxWidth: "1200px", margin: "0 auto", padding: "16px", paddingTop: "48px", display: "flex", flexDirection: "column", alignItems: "center", rowGap: "32px", color: theme.colors.primary })}>
             <div className={css({ width: "100%", display: "flex", flexDirection: "row", columnGap: "32px" })}>
                 <div className={css({ width: "75%" })}>
                     <AspectRatioBox>
@@ -154,14 +188,45 @@ export default function PetitionPage() {
                 } else {
                     level = 1
                 }
-                return <SupportTierList tier={tier} level={level} />;
+                return <SupportTierList tier={tier} level={level} petitionId={petition.petitionId} />;
                 })}
             </div>
 
+            <StyledDivider $size={SIZE.section} className={css({ width: "100%"})} />
             
-
+            <div className={css({
+                            width: "100%",
+                            fontSize: theme.typography.DisplaySmall.fontSize, 
+                            fontWeight: theme.typography.DisplaySmall.fontWeight,
+                            textAlign: "center"
+                        })}
+            >Similar Petitions</div>
+            {similarPetitions.length == 0?
+                    <div className={css({ fontSize: "32px", textAlign: "center", width: "100%", paddingBottom: "48px" })}>No similar petitions</div> :
+            
+            <div
+                className={css({
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                    gridGap: theme.sizing.scale600,
+                    padding: theme.sizing.scale600,
+                    width: '100%',
+                    boxSizing: 'border-box',
+                })}
+            >
+                
+                    {similarPetitions.map((petition: Petition, index: any) => {
+                        const category = categories.find((category) => category.categoryId === petition.categoryId)
+                        if (!category) {
+                            return null
+                        }
+                        return (
+                            <PetitionCard petition={petition} category={category} key={index} />
+                        )
+                    })
+                }
+            </div>
+            }
         </div>
     )
 }
-
-

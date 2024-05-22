@@ -12,7 +12,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <div>
       <Header></Header>
       <main>
-        <Outlet /> {/* This is where the child routes will render */}
+        <Outlet />
         {children}
       </main>
     </div>

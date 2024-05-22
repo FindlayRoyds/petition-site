@@ -30,6 +30,17 @@ export interface PetitionAdvanced {
     moneyRaised: number,
     supportTiers: SupportTier[]
 }
+
+export interface Supporter {
+    supportId: number,
+    supportTierId: number,
+    message: String,
+    supporterId: number,
+    supporterFirstName: String,
+    supporterLastName: String,
+    timestamp: Date
+}
+
 export interface Category {
     categoryId: number,
     name: string

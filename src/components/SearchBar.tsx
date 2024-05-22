@@ -83,6 +83,10 @@ export default function SearchBar() {
         setIsAdvancedShown((sortBy !== null || minCost !== null || categoryIds.length != 0) || isFocused)
     }, [sortBy, isFocused, minCost])
 
+    React.useEffect(() => {
+        setSearchTerm(searchTermParam || "")
+    }, [searchTermParam])
+
     return (
         <div className={css({width: isFocused ? '700px' : '350px', transition: `width ${theme.animation.timing500} ${theme.animation.easeOutQuinticCurve}`})}>
             <Input
