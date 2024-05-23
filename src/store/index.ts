@@ -1,9 +1,16 @@
 import { create } from 'zustand'
 import { LightTheme } from "baseui"
+import {User} from "../types";
 
 interface PersistentStorage {
     theme: any
     setTheme: (theme: any) => void
+    // token: any
+    // setToken: (token: any) => void
+    // userId: any
+    // setUserId: (userId: any) => void
+    user: any
+    setUser: (user: any) => void
 }
 
 interface TemporaryStorage {
@@ -19,6 +26,21 @@ export const usePersistentStore = create<PersistentStorage>((set) => ({
     setTheme: (theme: any) => set(() => {
         setLocalStorage('theme', theme)
         return {theme: theme}
+    }),
+    // token: getLocalStorage('token'),
+    // setToken: (token: any) => set(() => {
+    //     setLocalStorage('token', token)
+    //     return {token: token}
+    // }),
+    // userId: getLocalStorage('userId'),
+    // setUserId: (userId: any) => set(() => {
+    //     setLocalStorage('userId', userId)
+    //     return {userId: userId}
+    // }),
+    user: getLocalStorage('user') == "null" ? null : JSON.parse(getLocalStorage('user')) as User,
+    setUser: (user: any) => set(() => {
+        setLocalStorage('user', JSON.stringify(user))
+        return {user: user}
     }),
 }))
 

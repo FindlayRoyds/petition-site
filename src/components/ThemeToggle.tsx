@@ -19,7 +19,7 @@ export default () => {
     }
 
     return (
-        <Button shape={SHAPE.square} size={SIZE.compact} kind={KIND.tertiary} onClick={switchTheme}>
+        <Button shape={SHAPE.square} kind={KIND.secondary} onClick={switchTheme}>
             <Show size={24}/>
         </Button>
     )

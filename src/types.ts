@@ -11,22 +11,22 @@ export interface Petition {
 }
 
 export interface SupportTier {
-    title: String,
-    description: String,
+    title: string,
+    description: string,
     cost: number,
     supportTierId: number
 }
 
 export interface PetitionAdvanced {
     petitionId: number,
-    title: String,
+    title: string,
     categoryId: number,
     ownerId: number,
-    ownerFirstName: String,
-    ownerLastName: String,
+    ownerFirstName: string,
+    ownerLastName: string,
     numberOfSupporters: number,
     creationDate: Date
-    description: String,
+    description: string,
     moneyRaised: number,
     supportTiers: SupportTier[]
 }
@@ -34,14 +34,22 @@ export interface PetitionAdvanced {
 export interface Supporter {
     supportId: number,
     supportTierId: number,
-    message: String,
+    message: string,
     supporterId: number,
-    supporterFirstName: String,
-    supporterLastName: String,
+    supporterFirstName: string,
+    supporterLastName: string,
     timestamp: Date
 }
 
 export interface Category {
     categoryId: number,
     name: string
+}
+
+export interface User {
+    token: string,
+    userId: number,
+    email: string
+    firstName: string
+    lastName: string
 }
