@@ -7,10 +7,11 @@ export default () => {
     const [css, theme] = useStyletron()
     const themeStore = usePersistentStore(state => state.theme)
     const navigate = useNavigate()
+    const user = usePersistentStore(state => state.user)
 
     return (
         <button className={css({backgroundColor: "transparent", border: "0px solid black", cursor: "pointer"})}
-            onClick={() => {navigate(`/search`)}}
+            onClick={() => {navigate(user == null? `/` : "/petitions")}}
         >
             <img src="/Logo.svg" className={css({
                 height: theme.sizing.scale950,

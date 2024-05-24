@@ -49,7 +49,7 @@ export default function SupportTierList({ tier, level, petitionId }: SupportTier
     const supportersInTier = supporters.filter(supporter => supporter.supportTierId === tier.supportTierId);
     
     return (
-        <Block className={css({ maxWidth: "260px", width: "100%", marginTop: (level - 1) * 32 + "px", border: "4px solid " + tierBorderColors[level - 1], backgroundColor: theme.name == "dark-theme"? tierBackgroundColorsDark[level - 1] : tierBackgroundColorsLight[level - 1], borderRadius: "24px", padding: "24px", display: "flex", flexDirection: "column", rowGap: "12px", color: theme.colors.primary })}>
+        <Block className={css({ maxWidth: "300px", width: "100%", marginTop: (level - 1) * 64 + "px", border: "4px solid " + tierBorderColors[level - 1], backgroundColor: theme.name == "dark-theme"? tierBackgroundColorsDark[level - 1] : tierBackgroundColorsLight[level - 1], borderBottomRadius: "0px", borderTopLeftRadius: level == 3? "0px" : "24px", borderTopRightRadius: level == 2? "0px" : "24px", padding: "24px", display: "flex", flexDirection: "column", rowGap: "12px", color: theme.colors.primary })}>
             <div>
                 <div className={css({
                         width: "100%",

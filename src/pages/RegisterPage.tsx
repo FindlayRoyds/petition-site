@@ -14,8 +14,8 @@ import { useParams } from 'react-router-dom';
 import { PetitionAdvanced } from '../types';
 import { StyledDivider, SIZE as DIVIDER_SIZE } from "baseui/divider";
 import axios from 'axios';
-import SupportTierList from './SupportTierList';
-import PetitionCard from './PetitionCard';
+import SupportTierList from '../components/SupportTierList';
+import PetitionCard from '../components/PetitionCard';
 import { Input } from 'baseui/input';
 import { FormControl } from "baseui/form-control";
 import { Notification, KIND as NOTIFICATION_KIND} from "baseui/notification";
@@ -56,10 +56,20 @@ export default function RegisterPage(): ReactElement {
             newUser.userId = userId
             newUser.token = token
             setUser(response.data)
-            navigate("/")
+            navigate("/upload-avatar")
         }, (error) => {
             const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
             setErrorMessage(errorMessage);
+        })
+    }
+
+    const logout = () => {
+        console.log(user)
+        setUser(null)
+        axios.post("http://localhost:4941/api/v1/users/logout").then((response) => {
+            console.log(response)
+        }, (error) => {
+            console.error(error)
         })
     }
 
@@ -90,6 +100,10 @@ export default function RegisterPage(): ReactElement {
     useEffect(() => {
         setTheme(LightTheme)
     })
+
+    useEffect(() => {
+        setIsModalOpen(user != null)
+    }, user)
 
     return (
         <div className={css({ background: "linear-gradient(0deg, rgba(0,40,150,1) 0%, rgba(19,137,200,1) 100%)", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" })}>
@@ -168,24 +182,25 @@ export default function RegisterPage(): ReactElement {
             </Block>
 
             <Modal
-                onClose={() => setIsModalOpen(false)}
+                // onClose={() => setIsModalOpen(false)}
+                closeable={false}
                 isOpen={isModalOpen}
                 animate
                 autoFocus
                 size={SIZE.default}
                 role={ROLE.dialog}
             >
-                <ModalHeader>Hello world</ModalHeader>
+                <ModalHeader>Looks like you're already logged in!</ModalHeader>
                 <ModalBody>
-                    Proin ut dui sed metus pharetra hend rerit vel non
-                    mi. Nulla ornare faucibus ex, non facilisis nisl.
-                    Maecenas aliquet mauris ut tempus.
+                    To register a new account you must not already be logged in. You can either log out or go back to the home page.
                 </ModalBody>
                 <ModalFooter>
-                    <ModalButton kind={BUTTON_KIND.tertiary}>
-                        Cancel
+                    <ModalButton kind={BUTTON_KIND.secondary} onClick={() => {navigate("/")}}>
+                        Home
                     </ModalButton>
-                    <ModalButton>Okay</ModalButton>
+                    <ModalButton onClick={() => {logout()}}>
+                        Log out
+                    </ModalButton>
                 </ModalFooter>
             </Modal>
         </div>

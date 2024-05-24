@@ -64,7 +64,7 @@ export default function SearchBar() {
             }
         }
     
-        return `/search?${searchParams.toString()}`;
+        return `/petitions/search?${searchParams.toString()}`;
     }
     
     const apply = () => {
@@ -200,7 +200,7 @@ export default function SearchBar() {
                         setSortBy("")
                         setMinCost(100)
                         setSelectedCategories([])
-                        navigate(searchTermParam==null? "/search" : `/search?searchTerm=${searchTermParam}`)
+                        navigate(searchTermParam==null? "/petitions/search" : `/petitions/search?searchTerm=${searchTermParam}`)
                     }}
                     overrides={{
                         BaseButton: {

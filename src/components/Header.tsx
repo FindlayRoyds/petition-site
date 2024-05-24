@@ -6,7 +6,7 @@ import Logo from "./Logo";
 import { Avatar } from "baseui/avatar";
 import {usePersistentStore} from "../store"
 import axios from "axios";
-import {Button, KIND} from "baseui/button";
+import {Button, KIND, SHAPE, SIZE} from "baseui/button";
 import {useNavigate} from "react-router-dom";
 import {PLACEMENT, Popover, StatefulPopover} from "baseui/popover";
 import {Block} from "baseui/block";
@@ -21,6 +21,10 @@ export default () => {
     const navigate = useNavigate()
     const [isOpen, setIsOpen] = React.useState(false);
     const setUser = usePersistentStore(state => state.setUser)
+    const themeStore = usePersistentStore(state => state.theme)
+    const setTheme = usePersistentStore(state => state.setTheme)
+
+    const [imageSrc, setImageSrc] = React.useState("")
 
     const logout = () => {
         console.log(user)
@@ -32,14 +36,28 @@ export default () => {
         })
     }
 
+    const switchTheme = () => {
+        console.log(themeStore)
+        if (themeStore.name == "dark-theme") {
+            setTheme(LightTheme)
+        } else {
+            setTheme(DarkTheme)
+        }
+    }
+
     useEffect(() => {
         if (user != null) {
             console.log("user: " + user == null)
             console.log(user.length == 0)
-            // type of user
             console.log(typeof user)
         }
     })
+
+    useEffect(() => {
+        if (user != null) {
+            setImageSrc(`http://localhost:4941/api/v1/users/${user.userId}/image?${Date.now()}`)
+        }
+    }, [user?.userId])
 
     return (
         <div className={css({
@@ -61,6 +79,16 @@ export default () => {
                 gap: "10px"
             })}>
                 <Logo/>
+                <Button kind={KIND.tertiary} style={{ fontSize: theme.typography.ParagraphMedium.fontSize, marginLeft: "24px" }} shape={SHAPE.pill}
+                    onClick={() => {navigate("/petitions")}}
+                >
+                    View Petitions
+                </Button>
+                <Button kind={KIND.tertiary} style={{ fontSize: theme.typography.ParagraphMedium.fontSize }} shape={SHAPE.pill}
+                    onClick={() => {navigate("/create-petition")}}
+                >
+                    Create Petition
+                </Button>
             </div>
             <div className={css({margin: "auto"})}></div>
             <div className={css({
@@ -78,25 +106,37 @@ export default () => {
                             <StatefulMenu
                                 items={[
                                     {label: "View Profile"},
+                                    {label: "Change Avatar"},
+                                    {label: "Toggle Theme"},
                                     {label: "Logout"},
-                                    {label: "Item Three"},
-                                    {label: "Item Four"}
                                 ]}
                                 onItemSelect={({item}) => {
                                     if (item.label === "View Profile") {
                                         navigate("/profile");
                                     } else if (item.label === "Logout") {
                                         logout()
+                                    } else if (item.label === "Toggle Theme") {
+                                        switchTheme()
+                                    } else if (item.label === "Change Avatar") {
+                                        navigate("/upload-avatar")
                                     }
+                                }}
+                                overrides={{
+                                    ListItem: {
+                                        style: ({ $theme }) => ({
+                                            fontSize: $theme.typography.ParagraphMedium.fontSize,
+                                            padding: "16px"
+                                        }),
+                                    },
                                 }}
                             />
                         }
                     >
-                        <div onClick={() => setIsOpen(!isOpen)}>
+                        <div onClick={() => setIsOpen(!isOpen)} style={{ cursor: "pointer" }}>
                             <Avatar
                                 name={`${user.firstName} ${user.lastName}`}
                                 size="scale1000"
-                                src={`http://localhost:4941/api/v1/users/${user.userId}/image`}
+                                src={imageSrc}
                             />
                         </div>
                     </StatefulPopover>
@@ -106,7 +146,7 @@ export default () => {
                         overrides={{
                             BaseButton: {
                                 style: ({ $theme }) => ({
-                                    boxShadow: `inset 0px 0px 0px 2px ${$theme.borders.border500.borderColor}`,
+                                    boxShadow: `inset 0px 0px 0px 2px ${$theme.colors.primary}`,
                                 })
                             }
                         }}

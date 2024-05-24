@@ -14,8 +14,8 @@ import { useParams } from 'react-router-dom';
 import { PetitionAdvanced } from '../types';
 import { StyledDivider, SIZE } from "baseui/divider";
 import axios from 'axios';
-import SupportTierList from './SupportTierList';
-import PetitionCard from './PetitionCard';
+import SupportTierList from '../components/SupportTierList';
+import PetitionCard from '../components/PetitionCard';
 
 
 export default function PetitionPage() {
@@ -158,10 +158,9 @@ export default function PetitionPage() {
             <StyledDivider $size={SIZE.section} className={css({ width: "100%"})} />
 
             
-            <div style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "center", columnGap: "12px" }}>
+            <div style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "center", columnGap: "0px" }}>
             {petition?.supportTiers
                 .sort((a, b) => {
-                // If there are 3 tiers, reorder them to 2nd, 1st, 3rd
                 if (petition?.supportTiers.length === 3) {
                     if (petition?.supportTiers.length === 3) {
                         const maxCost = Math.max(...petition.supportTiers.map(tier => tier.cost));
@@ -170,16 +169,13 @@ export default function PetitionPage() {
                         if (b.cost !== maxCost && b.cost !== minCost) return 1;
                         return b.cost - a.cost;
                       } else {
-                        // If there are 2 tiers, order them to 2nd, 1st
                         return b.cost - a.cost;
                       }
                 } else {
-                    // If there are 2 tiers, order them to 2nd, 1st
                     return a.cost - b.cost;
                 }
                 })
                 .map((tier, index, arr) => {
-                // Assign level based on index
                 let level;
                 if (arr.length === 3) {
                     level = index === 0 ? 2 : index === 1 ? 1 : 3;

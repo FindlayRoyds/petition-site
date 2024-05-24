@@ -47,7 +47,7 @@ export default function SearchBar() {
             }
         }
     
-        return `/search?${searchParams.toString()}`;
+        return `/petitions/search?${searchParams.toString()}`;
     }
 
     const search = () => {
