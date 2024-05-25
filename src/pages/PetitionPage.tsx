@@ -184,7 +184,7 @@ export default function PetitionPage() {
                 } else {
                     level = 1
                 }
-                return <SupportTierList tier={tier} level={level} petitionId={petition.petitionId} />;
+                return <SupportTierList tier={tier} level={level} petition={petition} />;
                 })}
             </div>
 

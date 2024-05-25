@@ -84,11 +84,13 @@ export default () => {
                 >
                     View Petitions
                 </Button>
-                <Button kind={KIND.tertiary} style={{ fontSize: theme.typography.ParagraphMedium.fontSize }} shape={SHAPE.pill}
-                    onClick={() => {navigate("/create-petition")}}
-                >
-                    Create Petition
-                </Button>
+                {user != null &&
+                    <Button kind={KIND.tertiary} style={{ fontSize: theme.typography.ParagraphMedium.fontSize }} shape={SHAPE.pill}
+                        onClick={() => {navigate("/create-petition")}}
+                    >
+                        Create Petition
+                    </Button>
+                }
             </div>
             <div className={css({margin: "auto"})}></div>
             <div className={css({
