@@ -100,7 +100,7 @@ export default function PetitionCardList() {
     return (
         <div>
             {(supportedPetitions.length == 0)?
-                <div className={css({ width: "100%", textAlign: "center", paddingTop: "16px", fontSize: "32px" })}>
+                <div className={css({ width: "100%", textAlign: "center", paddingTop: "16px", fontSize: "32px", color: theme.colors.primary })}>
                     No petitions found
                 </div> : 
 

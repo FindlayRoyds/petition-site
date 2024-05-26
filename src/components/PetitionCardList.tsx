@@ -1,13 +1,11 @@
 import React, { useState } from 'react'
 import PetitionCard from './PetitionCard'
 import axios from 'axios'
-import { Cell, Grid } from 'baseui/layout-grid'
 import { Petition, Category } from '../types' // Import the Petition type
 import { useStyletron } from "baseui"
-import { useParams } from 'react-router-dom'
 import { Pagination } from "baseui/pagination"
 import { Button, KIND } from 'baseui/button'
-import { ArrowDown, ArrowLeft, ChevronLeft, TriangleLeft, TriangleRight } from 'baseui/icon'
+import { TriangleLeft, TriangleRight } from 'baseui/icon'
 import { useSearchParams } from 'react-router-dom'
 
 
@@ -66,7 +64,7 @@ export default function PetitionCardList() {
         getPetitions()
         getCategories()
         // setPrevCategoryIds(categoryIds)
-    }, [searchTerm, sortBy, minCost])
+    }, [searchTerm, sortBy, minCost, getPetitions])
 
     React.useEffect(() => {
         if (JSON.stringify(prevCategoryIds) !== JSON.stringify(categoryIds)) {
@@ -75,12 +73,12 @@ export default function PetitionCardList() {
             getCategories()
             setPrevCategoryIds(categoryIds)
         }
-    }, [categoryIds, prevCategoryIds])
+    }, [categoryIds, prevCategoryIds, getPetitions])
 
     return (
         <div>
             {(petitions.length == 0)?
-                <div className={css({ width: "100%", textAlign: "center", paddingTop: "16px", fontSize: "32px" })}>
+                <div className={css({ width: "100%", textAlign: "center", paddingTop: "16px", fontSize: "32px", color: theme.colors.primary  })}>
                     No petitions found
                 </div> : 
 

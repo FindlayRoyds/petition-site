@@ -14,6 +14,10 @@ import MyPetitions from './pages/MyPetitions'
 import NotFound from './components/NotFound'
 
 function App() {
+    React.useEffect(() => {
+        
+    }, [])
+
     return (
         <Router>
             <Routes>
