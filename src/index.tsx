@@ -20,7 +20,6 @@ const RootComponent: React.FC = () => {
     useEffect(() => {
         // Set the background color of the body to the background color of the theme
         document.body.style.backgroundColor = theme.colors.backgroundPrimary
-        console.log('hi')
     }, [theme])
 
     return (

@@ -68,10 +68,8 @@ export default function RegisterPage(): ReactElement {
     }
 
     const logout = () => {
-        console.log(user)
         setUser(null)
         axios.post("http://localhost:4941/api/v1/users/logout").then((response) => {
-            console.log(response)
         }, (error) => {
             console.error(error)
         })

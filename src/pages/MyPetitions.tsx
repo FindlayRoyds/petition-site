@@ -56,16 +56,14 @@ export default function PetitionCardList() {
             axios.get(supportedApiRequest)
                 .then((response) => {
                     setSupportedPetitions(response.data.petitions)
-                }, (error) => {
-                    console.log("error :(")
+                }, () => {
                 })
             let ownedApiRequest = "http://localhost:4941/api/v1/petitions"
             ownedApiRequest += `?ownerId=${user.userId}`
             axios.get(ownedApiRequest)
                 .then((response) => {
                     setOwnedPetitions(response.data.petitions)
-                }, (error) => {
-                    console.log("error :(")
+                }, () => {
                 })
         }
     }
@@ -74,8 +72,7 @@ export default function PetitionCardList() {
         axios.get(apiRequest)
             .then((response) => {
                 setCategories(response.data)
-            }, (error) => {
-                console.log("error :(")
+            }, () => {
             })
     }
 
@@ -93,7 +90,6 @@ export default function PetitionCardList() {
 
     React.useEffect(() => {
         if (JSON.stringify(prevCategoryIds) !== JSON.stringify(categoryIds)) {
-            console.log("ran")
             setCurrentPage(1)
             getPetitions()
             getCategories()

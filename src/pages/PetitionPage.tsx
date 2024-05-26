@@ -18,7 +18,16 @@ import SupportTierList from '../components/SupportTierList';
 import PetitionCard from '../components/PetitionCard';
 import {usePersistentStore} from "../store"
 import {Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE as MODAL_SIZE} from "baseui/modal";
+import { Select } from 'baseui/select';
+import { Textarea } from 'baseui/textarea';
+import { Input } from 'baseui/input';
+import { Notification, KIND as NOTIFICATION_KIND} from "baseui/notification";
 
+
+type CategoryItem = {
+    id: string;
+    label: string
+};
 
 export default function PetitionPage() {
     const [css, theme] = useStyletron()
@@ -38,6 +47,17 @@ export default function PetitionPage() {
     const [similarPetitions, setSimilarPetitions] = useState<Petition[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [isEditing, setIsEditing] = useState(false)
+
+    const [title, setTitle] = useState("")
+    const [description, setDescription] = useState("")
+    const [selectedCategory, setSelectedCategory] = React.useState<CategoryItem>();
+    const [categoryOptions, setCategoryOptions] = React.useState<Category[]>([]);
+    const [errorMessage, setErrorMessage] = useState("")
+    const [isAddTierModalOpen, setIsAddTierModalOpen] = useState(false)
+    const [newTierTitle, setNewTierTitle] = useState("")
+    const [newTierDescription, setNewTierDescription] = useState("")
+    const [newTierCost, setNewTierCost] = useState("")
 
     const navigate = useNavigate()
 
@@ -46,9 +66,21 @@ export default function PetitionPage() {
         axios.get(apiRequest)
             .then((response) => {
                 setCategories(response.data)
-            }, (error) => {
-                console.log("error :(")
+            }, () => {
             })
+    }
+
+    const getCategoryOptions = () => {
+        let apiRequest = "http://localhost:4941/api/v1/petitions/categories"
+        axios.get(apiRequest)
+        .then((response) => {
+            const updatedData = response.data.map((item: { categoryId: any; name: any; }) => ({
+                id: String(item.categoryId),
+                label: item.name,
+            }));
+            setCategoryOptions(updatedData);
+        }, () => {
+        })
     }
 
     const deletePetition = () => {
@@ -59,9 +91,70 @@ export default function PetitionPage() {
             }
         }).then((response) => {
             navigate("/")
-        }, (error) => {
-            console.log("error :(")
+        }, () => {
         })
+    }
+
+    const addNewTier = () => {
+        let apiRequest = `http://localhost:4941/api/v1/petitions/${petitionId}/supportTiers`
+        axios.put(apiRequest, {
+            title: newTierTitle,
+            cost: parseFloat(newTierCost),
+            description: newTierDescription
+        }, {
+            headers: {
+                'X-Authorization': user.token
+            }
+        }).then((response) => {
+            window.location.reload();
+        }, (error) => {
+            const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
+            setErrorMessage(errorMessage);
+        })
+    }
+
+    const startEditing = () => {
+        setIsEditing(true)
+        setTitle(petition?.title ?? "")
+        setDescription(petition?.description ?? "")
+        let currentCategory = categories.find((category) => category.categoryId === petition?.categoryId)
+        setSelectedCategory({id: String(currentCategory?.categoryId), label: currentCategory?.name || ""})
+    }
+
+    const submit = () => {
+        
+        if (selectedCategory == null) {
+            setErrorMessage("Please select a category")
+            return
+        }
+        let changes: { title?: string, description?: string, categoryId?: Number } = {};
+        if (title !== petition?.title) {
+            changes.title = title;
+        }
+        if (description !== petition?.description) {
+            changes.description = description;
+        }
+        if (selectedCategory?.id !== String(petition?.categoryId)) {
+            changes.categoryId = parseInt(selectedCategory.id);
+        }
+
+        axios.patch(`http://localhost:4941/api/v1/petitions/${petition?.petitionId}`, changes, {
+            headers: {
+                'X-Authorization': user.token
+            }
+        }).then((response) => {
+            window.location.reload();
+        }, (error) => {
+            const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
+            setErrorMessage(errorMessage);
+        })
+    }
+
+    const openAddTierModal = () => {
+        setNewTierCost("")
+        setNewTierDescription("")
+        setNewTierTitle("")
+        setIsAddTierModalOpen(true)
     }
 
     React.useEffect(() => {
@@ -70,12 +163,12 @@ export default function PetitionPage() {
             axios.get(apiRequest)
                 .then((response) => {
                     setPetition(response.data)
-                }, (error) => {
-                    console.log("error :(")
+                }, () => {
                 })
         }
         getPetition()
         getCategories()
+        getCategoryOptions()
     }, [petitionId])
 
     React.useEffect(() => {
@@ -84,8 +177,7 @@ export default function PetitionPage() {
             axios.get(apiRequest)
                 .then((response) => {
                     setSimilarPetitions(response.data.petitions.filter((petition2: Petition) => (petition2.ownerId === petition?.ownerId || petition2.categoryId === petition?.categoryId) && petition2.petitionId != petition?.petitionId));
-                }, (error) => {
-                    console.log("error :(")
+                }, () => {
                 })
         }
         getSimilarPetitions()
@@ -97,6 +189,12 @@ export default function PetitionPage() {
             setFormattedDate(`${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`)
         }
     }, [petition?.creationDate])
+
+    React.useEffect(() => {
+        if (user == null || petition?.ownerId != user.userId) {
+            setIsEditing(false)
+        }
+    }, [user])
 
     return (
         <div className={css({ maxWidth: "1200px", margin: "0 auto", padding: "16px", paddingTop: "48px", display: "flex", flexDirection: "column", alignItems: "center", rowGap: "32px", color: theme.colors.primary })}>
@@ -121,68 +219,141 @@ export default function PetitionPage() {
                         </AspectRatioBoxBody>
                     </AspectRatioBox>
                 </div>
-                <div className={css({width: "100%", display: "flex", flexDirection: "column", rowGap: "12px"})}>
-                    <div className={css({
-                            width: "100%",
-                            fontSize: theme.typography.DisplayMedium.fontSize, 
-                            fontWeight: theme.typography.DisplayMedium.fontWeight
-                        })}
-                    >
-                        {petition?.title}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'row', gap: "10px"}}>
-                        <div>
-                            <Avatar
-                                name={`${petition?.ownerFirstName} ${petition?.ownerLastName}`}
-                                size="scale1400"
-                                src={`http://localhost:4941/api/v1/users/${petition?.ownerId}/image`}
-                            />
-                        </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', color: theme.colors.primary, fontSize: theme.typography.ParagraphMedium.fontSize}}>
-                            <div>
-                                <span>
-                                    Uploaded by {petition?.ownerFirstName} {petition?.ownerLastName}
-                                </span>
+                <div className={css({width: "100%"})}>
+                    {!isEditing && (
+                        <div className={css({width: "100%", display: "flex", flexDirection: "column", rowGap: "12px"})}>
+                            <div className={css({
+                                    width: "100%",
+                                    fontSize: theme.typography.DisplayMedium.fontSize, 
+                                    fontWeight: theme.typography.DisplayMedium.fontWeight
+                                })}
+                            >
+                                {petition?.title}
                             </div>
-                            <div>{formattedDate}</div>
-                        </div>
-                    </div>
+                            <div style={{ display: 'flex', flexDirection: 'row', gap: "10px"}}>
+                                <div>
+                                    <Avatar
+                                        name={`${petition?.ownerFirstName} ${petition?.ownerLastName}`}
+                                        size="scale1400"
+                                        src={`http://localhost:4941/api/v1/users/${petition?.ownerId}/image`}
+                                    />
+                                </div>
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', color: theme.colors.primary, fontSize: theme.typography.ParagraphMedium.fontSize}}>
+                                    <div>
+                                        <span>
+                                            Uploaded by {petition?.ownerFirstName} {petition?.ownerLastName}
+                                        </span>
+                                    </div>
+                                    <div>{formattedDate}</div>
+                                </div>
+                            </div>
 
-                    <div className={css({
-                            width: "100%",
-                            paddingTop: "24px",
-                            fontSize: theme.typography.ParagraphLarge.fontSize, 
-                            fontWeight: theme.typography.ParagraphLarge.fontWeight
-                        })}
-                    >
-                        {petition?.description}
-                    </div>
-                    <div className={css({
-                        width: "100%",
-                        fontSize: theme.typography.ParagraphLarge.fontSize, 
-                        fontWeight: theme.typography.ParagraphLarge.fontWeight
-                    })}
-                    >
-                        {petition?.numberOfSupporters ?? 0 > 0 ?
-                            petition?.moneyRaised + " dollars raised by " + petition?.numberOfSupporters + " supporter" + (petition?.numberOfSupporters == 1? "" : "s") :
-                            "This petition does not have any supporters yet"
-                        }
-                        
-                    </div>
+                            <div className={css({
+                                    width: "100%",
+                                    paddingTop: "24px",
+                                    fontSize: theme.typography.ParagraphLarge.fontSize, 
+                                    fontWeight: theme.typography.ParagraphLarge.fontWeight
+                                })}
+                            >
+                                {petition?.description}
+                            </div>
+                            <div className={css({
+                                width: "100%",
+                                fontSize: theme.typography.ParagraphLarge.fontSize, 
+                                fontWeight: theme.typography.ParagraphLarge.fontWeight
+                            })}
+                            >
+                                {petition?.numberOfSupporters ?? 0 > 0 ?
+                                    petition?.moneyRaised + " dollars raised by " + petition?.numberOfSupporters + " supporter" + (petition?.numberOfSupporters == 1? "" : "s") :
+                                    "This petition does not have any supporters yet"
+                                }
+                                
+                            </div>
+                        </div>
+                    )}
+                    {isEditing && (
+                        <div className={css({width: "100%", display: "flex", flexDirection: "column", rowGap: "12px"})}>
+                            <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                                Title
+                            </div>
+                            <Input
+                                value={title}
+                                onChange={(event) => setTitle(event.currentTarget.value)}
+                                placeholder="Enter a title for the petition"
+                            />
+
+                            <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                                Description
+                            </div>
+                            <Textarea
+                                value={description}
+                                onChange={(event) => setDescription(event.currentTarget.value)}
+                                placeholder="Enter a description for the petition"
+                            />
+
+                            <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                                Category
+                            </div>
+                            <Select
+                                overrides={{
+                                    ControlContainer: {
+                                    style: ({ $theme }) => ({
+                                        cursor: "pointer"
+                                    })
+                                    }
+                                }}
+                                options={categoryOptions.sort((a, b) => a.name?.localeCompare(b.name))}
+                                value={selectedCategory == null ? [] : [selectedCategory]}
+                                placeholder="Select a Category"
+                                onChange={params => setSelectedCategory(params.value[0] as CategoryItem)}
+                                searchable={false}
+                                clearable={false}
+                            />
+                            {errorMessage && (
+                                <Notification kind={NOTIFICATION_KIND.negative} closeable
+                                    overrides={{
+                                        Body: { style: { width: "90%" } },
+                                    }}
+                                    onClose={() => {
+                                        setErrorMessage("")
+                                    }}
+                                >
+                                    {errorMessage}
+                                </Notification>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
             
-            {user != null && petition?.ownerId == user.userId &&
-                <div>
-                    <Button
-                        onClick={() => {
-                            setIsDeleteModalOpen(true)
-                        }}
-                    >
-                        Delete petition
-                    </Button>
-                    <Button>Edit petition</Button>
-                </div>
+            {(user != null && petition?.ownerId == user.userId) && (
+                isEditing?
+                    <div>
+                        <Button
+                            onClick={() => {
+                                setIsEditing(false)
+                            }}
+                            kind={KIND.secondary}
+                        >
+                            Cancel
+                        </Button>
+                        <Button onClick={() => {submit()}}>
+                            Submit changes
+                        </Button>
+                    </div> :
+                    <div>
+                        <Button
+                            onClick={() => {
+                                setIsDeleteModalOpen(true)
+                            }}
+                        >
+                            Delete petition
+                        </Button>
+                        <Button onClick={() => {startEditing()}}>
+                            Edit petition
+                        </Button>
+                    </div>
+                )
             }
 
             <StyledDivider $size={SIZE.section} className={css({ width: "100%"})} />
@@ -217,6 +388,12 @@ export default function PetitionPage() {
                 return <SupportTierList tier={tier} level={level} petition={petition} />;
                 })}
             </div>
+            
+            {user != null && petition?.ownerId == user.userId && (
+                <Button disabled={petition == null? true : petition?.supportTiers.length >= 3} onClick={() => (openAddTierModal())}>
+                    Add a support tier
+                </Button>
+            )}
 
             <StyledDivider $size={SIZE.section} className={css({ width: "100%"})} />
             
@@ -273,6 +450,76 @@ export default function PetitionPage() {
                     </ModalButton>
                     <ModalButton onClick={() => { deletePetition() }}>
                         Delete
+                    </ModalButton>
+                </ModalFooter>
+            </Modal>
+
+            <Modal
+                onClose={() => setIsAddTierModalOpen(false)}
+                closeable={true}
+                isOpen={isAddTierModalOpen}
+                animate
+                autoFocus
+                size={MODAL_SIZE.default}
+                role={ROLE.dialog}
+            >
+                <ModalHeader>Add a new support tier</ModalHeader>
+                <ModalBody>
+                    <div style={{display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", rowGap: "24px", width: "100%" }}>
+                        <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                            Title
+                        </div>
+                        <Input
+                            value={newTierTitle}
+                            onChange={(event) => setNewTierTitle(event.currentTarget.value)}
+                            placeholder="Enter a title for the support tier"
+                        />
+
+                        <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                            Description
+                        </div>
+                        <Textarea
+                            value={newTierDescription}
+                            onChange={(event) => setNewTierDescription(event.currentTarget.value)}
+                            placeholder="Enter a description for the support tier"
+                        />
+
+                        <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                            Cost
+                        </div>
+                        <Input
+                            value={newTierCost}
+                            onChange={(event) => {
+                                // let num = parseFloat(event.currentTarget.value)
+                                // console.log(num)
+                                // if (!isNaN(num) || event.currentTarget.value === "") {
+                                //     setCost(isNaN(num)? "" : num.toString())
+                                // }
+                                setNewTierCost(event.currentTarget.value)
+                            }}
+                            placeholder="Enter a cost in dollars for the support tier"
+                        />
+
+                        {errorMessage && (
+                            <Notification kind={NOTIFICATION_KIND.negative} closeable
+                                overrides={{
+                                    Body: { style: { width: "90%" } },
+                                }}
+                                onClose={() => {
+                                    setErrorMessage("")
+                                }}
+                            >
+                                {errorMessage}
+                            </Notification>
+                        )}  
+                    </div>
+                </ModalBody>
+                <ModalFooter>
+                    <ModalButton kind={KIND.secondary} onClick={() => { setIsAddTierModalOpen(false) }}>
+                        Cancel
+                    </ModalButton>
+                    <ModalButton onClick={() => { addNewTier() }}>
+                        Add
                     </ModalButton>
                 </ModalFooter>
             </Modal>

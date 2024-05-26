@@ -20,6 +20,8 @@ import {usePersistentStore} from "../store"
 import {Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE as MODAL_SIZE} from "baseui/modal";
 import {KIND as BUTTON_KIND} from "baseui/button/constants";
 import { Textarea } from "baseui/textarea";
+import { Input } from 'baseui/input';
+import { Notification, KIND as NOTIFICATION_KIND} from "baseui/notification";
 
 
 interface SupportTierListProps {
@@ -44,6 +46,13 @@ export default function SupportTierList({ tier, level, petition }: SupportTierLi
     const [supportMessage, setSupportMessage] = useState("")
     const [isSupporting, setIsSupporting] = useState(user == null? false : supportersInTier.some(supporter => supporter.supporterId === user.userId))
     const [userOwnsPetition, setUserOwnsPetition] = useState(user == null? false : user.userId == petition.ownerId)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+    const [title, setTitle] = useState("")
+    const [description, setDescription] = useState("")
+    const [cost, setCost] = React.useState("");
+
+    const [errorMessage, setErrorMessage] = useState("")
 
 
     const getSupporters = () => {
@@ -51,20 +60,64 @@ export default function SupportTierList({ tier, level, petition }: SupportTierLi
         axios.get(apiRequest)
             .then((response) => {
                 setSupporters(response.data)
-            }, (error) => {
-                console.log("error :(")
+            }, () => {
             })
     }
 
     const openSupport = () => {
         if (user == null) {
-
+            navigate("/login")
         } else {
             if (!isSupporting && !userOwnsPetition) {
                 setSupportMessage("")
                 setIsSupportModalOpen(true)
             }
         }
+    }
+
+    const openEditModal = () => {
+        setTitle(tier.title)
+        setDescription(tier.description)
+        setCost(tier.cost.toString())
+        setIsEditModalOpen(true)
+    }
+
+    const deleteTier = () => {
+        axios.delete(`http://localhost:4941/api/v1/petitions/${petition.petitionId}/supportTiers/${tier.supportTierId}`, {
+            headers: {
+                'X-Authorization': user.token
+            }
+        }).then((response) => {
+            window.location.reload();
+        }, (error) => {
+            const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
+            setErrorMessage(errorMessage);
+        })
+    }
+
+    const submit = () => {
+        let changes: { title?: string, description?: string, cost?: string } = {};
+        if (title != tier.title) {
+            changes.title = title;
+        }
+        if (description != tier.description) {
+            changes.description = description;
+        }
+        if (cost != tier.cost.toString()) {
+            changes.cost = cost;
+        }
+
+        axios.patch(`http://localhost:4941/api/v1/petitions/${petition.petitionId}/supportTiers/${tier.supportTierId}`, changes, {
+            headers: {
+                'X-Authorization': user.token
+            }
+        }).then((response) => {
+            
+            window.location.reload();
+        }, (error) => {
+            const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
+            setErrorMessage(errorMessage);
+        })
     }
 
     const support = () => {
@@ -120,14 +173,22 @@ export default function SupportTierList({ tier, level, petition }: SupportTierLi
                 </div>
                 
                 <div className={css({ marginTop: 'auto' })}>
+                    {userOwnsPetition?
+                    <div style={{ display: "flex", flexDirection: "column", rowGap: "12px" }}>
+                        <Button className={css({ width: "100%" })} onClick={() => {openEditModal()}} disabled={supportersInTier.length > 0}>
+                            Edit support tier
+                        </Button>
+                        <Button kind={BUTTON_KIND.tertiary} className={css({ width: "100%" })} onClick={() => { deleteTier() }} disabled={petition.supportTiers.length <= 1 || supportersInTier.length > 0}>
+                            Delete support tier
+                        </Button>
+                    </div> :
                     <Button kind={supportButtonTypes[level - 1]} className={css({ width: "100%" })} onClick={() => openSupport()} disabled={isSupporting}>
                         {!isSupporting?
-                            userOwnsPetition?
-                                "Cannot support your own petition" :
-                                `Support for ${ tier.cost == 0? "free" : "$" + tier.cost}` :
+                            `Support for ${ tier.cost == 0? "free" : "$" + tier.cost}` :
                             "Already supporting"
                         }
                     </Button>
+                    }
                     
                     <div className={css({ paddingTop: "16px" })}>
                         <StyledDivider $size={SIZE.section} className={css({ width: "100%" })} />
@@ -213,6 +274,75 @@ export default function SupportTierList({ tier, level, petition }: SupportTierLi
                     </ModalButton>
                     <ModalButton onClick={() => { support() }}>
                         Support for { tier.cost == 0? "free" : "$" + tier.cost}
+                    </ModalButton>
+                </ModalFooter>
+            </Modal>
+
+            <Modal
+                onClose={() => setIsEditModalOpen(false)}
+                isOpen={isEditModalOpen}
+                animate
+                autoFocus
+                size={MODAL_SIZE.default}
+                role={ROLE.dialog}
+            >
+                <ModalHeader>Edit "{tier.title}"</ModalHeader>
+                <ModalBody>
+                    <div style={{display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", rowGap: "24px", width: "100%" }}>
+                        <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                            Title
+                        </div>
+                        <Input
+                            value={title}
+                            onChange={(event) => setTitle(event.currentTarget.value)}
+                            placeholder="Enter a title for the support tier"
+                        />
+
+                        <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                            Description
+                        </div>
+                        <Textarea
+                            value={description}
+                            onChange={(event) => setDescription(event.currentTarget.value)}
+                            placeholder="Enter a description for the support tier"
+                        />
+
+                        <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
+                            Cost
+                        </div>
+                        <Input
+                            value={cost}
+                            onChange={(event) => {
+                                // let num = parseFloat(event.currentTarget.value)
+                                // console.log(num)
+                                // if (!isNaN(num) || event.currentTarget.value === "") {
+                                //     setCost(isNaN(num)? "" : num.toString())
+                                // }
+                                setCost(event.currentTarget.value)
+                            }}
+                            placeholder="Enter a cost in dollars for the support tier"
+                        />
+
+                        {errorMessage && (
+                            <Notification kind={NOTIFICATION_KIND.negative} closeable
+                                overrides={{
+                                    Body: { style: { width: "90%" } },
+                                }}
+                                onClose={() => {
+                                    setErrorMessage("")
+                                }}
+                            >
+                                {errorMessage}
+                            </Notification>
+                    )}  
+                    </div>
+                </ModalBody>
+                <ModalFooter>
+                    <ModalButton kind={BUTTON_KIND.secondary} onClick={() => { setIsEditModalOpen(false) }}>
+                        Cancel
+                    </ModalButton>
+                    <ModalButton onClick={() => { submit() }}>
+                        Apply changes
                     </ModalButton>
                 </ModalFooter>
             </Modal>

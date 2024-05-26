@@ -85,14 +85,12 @@ export default function SearchBar() {
     
             const selected = updatedData.filter((category: { id: string; }) => categoryIdsParam?.includes(category.id));
             setSelectedCategories(selected);
-        }, (error) => {
-            console.log("error :(")
+        }, () => {
         })
     }
     
     React.useEffect(() => {
         if (JSON.stringify(prevCategoryIdsParam) !== JSON.stringify(categoryIdsParam)) {
-            console.log(categoryIdsParam)
             getCategories()
             setPrevCategoryIdsParam(categoryIdsParam);
         }
@@ -151,7 +149,6 @@ export default function SearchBar() {
             <Slider
                 value={[minCost]}
                 onChange={({ value }) => value && setMinCost(value[0])}
-                onFinalChange={({ value }) => console.log(value)}
                 min={0}
                 step={1}
                 valueToLabel={value => {

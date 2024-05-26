@@ -118,7 +118,7 @@ export default function AccountPage() {
     return (
         <div>
             {user != null &&
-                <div style={{display: "flex", justifyContent: "center", alignItems: "center", padding: "24px", marginBottom: "48px" }}>
+                <div style={{display: "flex", justifyContent: "center", alignItems: "center", padding: "24px", marginBottom: "48px", color: theme.colors.primary }}>
                     <Block style={{ borderRadius: "12px", outline: `${theme.borders.border400.borderColor} solid 1px`, padding: "24px", maxWidth: "600px", width: "100%" }}>
                         <div style={{display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", rowGap: "24px", width: "100%" }}>
                             {!isEditing && (
@@ -126,7 +126,7 @@ export default function AccountPage() {
                                     <Avatar
                                         name={`${user.firstName} ${user.lastName}`}
                                         size="400px"
-                                        src={`http://localhost:4941/api/v1/users/${user.userId}/image?version=${imageVersion}`}
+                                        src={`http://localhost:4941/api/v1/users/${user.userId}/image?time=${Date.now()}`}
                                     />
 
                                     <div className={css({ width: "100%", fontSize: theme.typography.HeadingMedium.fontSize, fontWeight: theme.typography.HeadingMedium.fontWeight, paddingLeft: "32px", paddingTop: "24px" })}>
@@ -148,7 +148,7 @@ export default function AccountPage() {
                                     <Avatar
                                         name={`${user.firstName} ${user.lastName}`}
                                         size="400px"
-                                        src={`http://localhost:4941/api/v1/users/${user.userId}/image`}
+                                        src={`http://localhost:4941/api/v1/users/${user.userId}/image?time=${Date.now()}`}
                                     />
                                     <div style={{ display: "flex", columnGap: "12px" }}>
                                         {hasImage && (

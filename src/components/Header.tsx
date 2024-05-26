@@ -27,35 +27,25 @@ export default () => {
     const [imageSrc, setImageSrc] = React.useState("")
 
     const logout = () => {
-        console.log(user)
         setUser(null)
         axios.post("http://localhost:4941/api/v1/users/logout", {}, {
             headers: {
                 'X-Authorization': user.token // Add this line
             }
-        }).then((response) => {
-            console.log(response)
+        }).then(() => {
+            
         }, (error) => {
             console.error(error)
         })
     }
 
     const switchTheme = () => {
-        console.log(themeStore)
         if (themeStore.name == "dark-theme") {
             setTheme(LightTheme)
         } else {
             setTheme(DarkTheme)
         }
     }
-
-    useEffect(() => {
-        if (user != null) {
-            console.log("user: " + user == null)
-            console.log(user.length == 0)
-            console.log(typeof user)
-        }
-    })
 
     useEffect(() => {
         if (user != null) {

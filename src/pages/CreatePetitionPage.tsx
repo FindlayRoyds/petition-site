@@ -61,8 +61,7 @@ export default function CreatePetitionPage(): ReactElement {
                 label: item.name,
             }));
             setCategories(updatedData);
-        }, (error) => {
-            console.log("error :(")
+        }, () => {
         })
     }
 
@@ -121,11 +120,11 @@ export default function CreatePetitionPage(): ReactElement {
 
     useEffect(() => {
         getCategories()
-    })
+    }, [])
 
     return (
         <div>
-            <div style={{display: "flex", justifyContent: "center", alignItems: "center", padding: "24px", marginBottom: "48px" }}>
+            <div style={{display: "flex", justifyContent: "center", alignItems: "center", padding: "24px", marginBottom: "48px", color: theme.colors.primary }}>
                 <Block style={{ borderRadius: "12px", outline: `${theme.borders.border400.borderColor} solid 1px`, padding: "24px", maxWidth: "600px", width: "100%" }}>
                     <div style={{display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", rowGap: "24px", width: "100%" }}>
                     <div className={css({ width: "100%", fontSize: theme.typography.HeadingMedium.fontSize, fontWeight: theme.typography.HeadingMedium.fontWeight, paddingBottom: "12px", paddingLeft: "32px", paddingTop: "24px" })}>

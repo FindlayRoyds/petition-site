@@ -44,8 +44,7 @@ export default function PetitionCardList() {
             .then((response) => {
                 setPetitions(response.data.petitions)
                 setNumberOfPages(Math.ceil(response.data.count / numPetitionsPerPage))
-            }, (error) => {
-                console.log("error :(")
+            }, () => {
             })
     }
     const getCategories = () => {
@@ -53,8 +52,7 @@ export default function PetitionCardList() {
         axios.get(apiRequest)
             .then((response) => {
                 setCategories(response.data)
-            }, (error) => {
-                console.log("error :(")
+            }, () => {
             })
     }
 
@@ -72,7 +70,6 @@ export default function PetitionCardList() {
 
     React.useEffect(() => {
         if (JSON.stringify(prevCategoryIds) !== JSON.stringify(categoryIds)) {
-            console.log("ran")
             setCurrentPage(1)
             getPetitions()
             getCategories()

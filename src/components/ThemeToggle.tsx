@@ -10,7 +10,6 @@ export default () => {
     const setTheme = usePersistentStore(state => state.setTheme)
 
     const switchTheme = () => {
-        console.log(themeStore)
         if (themeStore.name == "dark-theme") {
             setTheme(LightTheme)
         } else {
