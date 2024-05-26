@@ -41,12 +41,16 @@ export default function LoginPage(): ReactElement {
 
     const getAndSetUser = (userId: number, token: string) => {
         let apiRequest = `http://localhost:4941/api/v1/users/${userId}`
-        axios.get(apiRequest).then((response) => {
+        axios.get(apiRequest, {
+            headers: {
+                'X-Authorization': token
+            }
+        }).then((response) => {
             let newUser = response.data
             newUser.userId = userId
             newUser.token = token
             setUser(response.data)
-            navigate("/")
+            navigate(-1);
         }, (error) => {
             const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
             setErrorMessage(errorMessage);
@@ -78,11 +82,11 @@ export default function LoginPage(): ReactElement {
 
     useEffect(() => {
         setTheme(LightTheme)
-    })
+    }, [])
 
     useEffect(() => {
         setIsModalOpen(user != null)
-    }, user)
+    }, [user])
 
     return (
         <div className={css({ background: "linear-gradient(0deg, rgba(0,40,150,1) 0%, rgba(19,137,200,1) 100%)", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" })}>

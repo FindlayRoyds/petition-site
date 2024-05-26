@@ -49,7 +49,7 @@ export default function UploadAvatarPage(): ReactElement {
                         'X-Authorization': user.token
                     }
                 }).then((response) => {
-                    navigate("/")
+                    navigate(-1);
                 }, (error) => {
                     const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
                     setErrorMessage(errorMessage);

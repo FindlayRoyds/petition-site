@@ -3,7 +3,7 @@ import { Card, StyledBody, StyledAction } from "baseui/card";
 import {DarkTheme, LightTheme, useStyletron} from "baseui"
 import {Heading, HeadingLevel} from 'baseui/heading';
 import { Button, KIND, SHAPE, SIZE as BUTTON_SIZE } from "baseui/button";
-import { Petition, Category } from "../types"; // Import the Petition interface
+import { Petition, Category, SupportTier } from "../types"; // Import the Petition interface
 import { Skeleton } from 'baseui/skeleton';
 import { Block } from "baseui/block";
 import { AspectRatioBox, AspectRatioBoxBody } from "baseui/aspect-ratio-box";
@@ -26,6 +26,7 @@ import {KIND as BUTTON_KIND} from "baseui/button/constants";
 import { FileUploader } from "baseui/file-uploader";
 import { Textarea } from 'baseui/textarea';
 import { Select } from 'baseui/select';
+import SupportTierCreator from '../components/SupportTierCreator';
 
 
 type CategoryItem = {
@@ -49,6 +50,7 @@ export default function CreatePetitionPage(): ReactElement {
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [selectedCategory, setSelectedCategory] = React.useState<CategoryItem>();
+    const [supportTiers, setSupportTiers] = React.useState([{title: "test tier", description: "testest", cost: 13}]);
 
     const getCategories = () => {
         let apiRequest = "http://localhost:4941/api/v1/petitions/categories"
@@ -62,6 +64,55 @@ export default function CreatePetitionPage(): ReactElement {
         }, (error) => {
             console.log("error :(")
         })
+    }
+
+    const handleSupportTierChange = (index: number, title: string, description: string, cost: string) => {
+        setSupportTiers(prevTiers => {
+            const newTiers = [...prevTiers];
+            newTiers[index] = { title, description, cost: parseInt(cost) };
+            return newTiers;
+        });
+    };
+
+    const createPetition = () => {
+        if (selectedFile) {
+            let apiRequest = `http://localhost:4941/api/v1/petitions`
+            axios.post(apiRequest, {
+                title: title,
+                description: description,
+                categoryId: parseInt(selectedCategory?.id || ""),
+                supportTiers: supportTiers,
+            }, {
+                headers: {
+                    'X-Authorization': user.token // Add this line
+                }
+            }).then((response) => {
+                const createdId = response.data.petitionId
+                const reader = new FileReader();
+                reader.onload = async function() {
+                    const arrayBuffer = this.result;
+                    // replace `petitionId` with the actual id of the petition
+                    let apiRequest = `http://localhost:4941/api/v1/petitions/${createdId}/image`
+                    axios.put(apiRequest, arrayBuffer, {
+                        headers: {
+                            'Content-Type': selectedFile.type,
+                            'X-Authorization': user.token
+                        }
+                    }).then((response) => {
+                        navigate(`/petition/${createdId}`)
+                    }, (error) => {
+                        const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
+                        setErrorMessage(errorMessage);
+                    })
+                };
+                reader.readAsArrayBuffer(selectedFile);
+            }, (error) => {
+                const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
+                setErrorMessage(errorMessage);
+            })
+        } else {
+            setErrorMessage("Please select an image for the petition")
+        }
     }
 
     useEffect(() => {
@@ -143,7 +194,7 @@ export default function CreatePetitionPage(): ReactElement {
                         <Textarea
                             value={description}
                             onChange={(event) => setDescription(event.currentTarget.value)}
-                            placeholder="Enter a title for the petition"
+                            placeholder="Enter a description for the petition"
                         />
 
                         <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
@@ -168,6 +219,52 @@ export default function CreatePetitionPage(): ReactElement {
                         <div className={css({ width: "100%", fontSize: theme.typography.HeadingXSmall.fontSize, fontWeight: theme.typography.ParagraphLarge.fontWeight, paddingBottom: "0", paddingLeft: "16px", paddingTop: "0" })}>
                             Support Tiers
                         </div>
+                        <div style={{ width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", rowGap: "12px" }}>
+                            {supportTiers.map((tier, index) => {
+                                return (
+                                    <SupportTierCreator
+                                        key={index}
+                                        index={index}
+                                        onChange={handleSupportTierChange}
+                                    />
+                                )
+                            })}
+                        </div>
+                        <div style={{ display: "flex", columnGap: "24px" }}>
+                            <Button
+                                disabled={supportTiers.length >= 3}
+                                onClick={() => {
+                                    setSupportTiers([...supportTiers, {title: "", description: "", cost: 0}])
+                                }}
+                            >
+                                Add support tier
+                            </Button>
+                            <Button
+                                disabled={supportTiers.length <= 1}
+                                onClick={() => {
+                                    setSupportTiers(supportTiers.slice(0, supportTiers.length - 1))
+                                }}
+                            >
+                                Remove support tier
+                            </Button>
+                        </div>
+
+                        {errorMessage && (
+                            <Notification kind={NOTIFICATION_KIND.negative} closeable
+                                overrides={{
+                                    Body: { style: { width: "90%" } },
+                                }}
+                                onClose={() => {
+                                    setErrorMessage("")
+                                }}
+                            >
+                                {errorMessage}
+                            </Notification>
+                        )}
+
+                        <Button onClick={() => createPetition()}>
+                            Create petition
+                        </Button>
                     </div>
                 </Block>
             </div>

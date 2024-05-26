@@ -29,7 +29,11 @@ export default () => {
     const logout = () => {
         console.log(user)
         setUser(null)
-        axios.post("http://localhost:4941/api/v1/users/logout").then((response) => {
+        axios.post("http://localhost:4941/api/v1/users/logout", {}, {
+            headers: {
+                'X-Authorization': user.token // Add this line
+            }
+        }).then((response) => {
             console.log(response)
         }, (error) => {
             console.error(error)
@@ -108,19 +112,19 @@ export default () => {
                             <StatefulMenu
                                 items={[
                                     {label: "View Profile"},
-                                    {label: "Change Avatar"},
+                                    {label: "My Petitions"},
                                     {label: "Toggle Theme"},
                                     {label: "Logout"},
                                 ]}
                                 onItemSelect={({item}) => {
                                     if (item.label === "View Profile") {
-                                        navigate("/profile");
+                                        navigate("/account");
                                     } else if (item.label === "Logout") {
                                         logout()
                                     } else if (item.label === "Toggle Theme") {
                                         switchTheme()
-                                    } else if (item.label === "Change Avatar") {
-                                        navigate("/upload-avatar")
+                                    } else if (item.label === "My Petitions") {
+                                        navigate("/my-petitions")
                                     }
                                 }}
                                 overrides={{

@@ -51,12 +51,16 @@ export default function RegisterPage(): ReactElement {
 
     const getAndSetUser = (userId: number, token: string) => {
         let apiRequest = `http://localhost:4941/api/v1/users/${userId}`
-        axios.get(apiRequest).then((response) => {
+        axios.get(apiRequest, {
+            headers: {
+                'X-Authorization': token
+            }
+        }).then((response) => {
             let newUser = response.data
             newUser.userId = userId
             newUser.token = token
             setUser(response.data)
-            navigate("/upload-avatar")
+            navigate("/")
         }, (error) => {
             const errorMessage = error.response.statusText.replace("Bad Request: data/", "");
             setErrorMessage(errorMessage);

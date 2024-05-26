@@ -35,9 +35,6 @@ export default function PetitionCard({ petition, category }: PetitionCardProps) 
     const navigateToPetition = () => {
         navigate(`/petition/${petition.petitionId}`)
     }
-    const navigateToOwner = () => {
-        navigate(`/user/${petition.petitionId}`)
-    }
 
     React.useEffect(() => {
         setImageLoaded(false) // Reset the isImageLoaded state
@@ -109,12 +106,7 @@ export default function PetitionCard({ petition, category }: PetitionCardProps) 
                     </div>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: "16px"}}>
                         <div style={{ display: 'flex', flexDirection: 'row', gap: "10px"}}>
-                            <div
-                                style={{ cursor: "pointer" }}
-                                onClick={() => {
-                                    navigateToOwner()
-                                }}
-                            >
+                            <div>
                                 <Avatar
                                     name={`${petition.ownerFirstName} ${petition.ownerLastName}`}
                                     size="scale1400"
@@ -123,12 +115,7 @@ export default function PetitionCard({ petition, category }: PetitionCardProps) 
                             </div>
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', color: theme.colors.primary, fontSize: theme.typography.ParagraphMedium.fontSize}}>
                                 <div>
-                                    <span
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => {
-                                            navigateToOwner()
-                                        }}
-                                    >
+                                    <span>
                                         Uploaded by {petition.ownerFirstName} {petition.ownerLastName}
                                     </span>
                                 </div>

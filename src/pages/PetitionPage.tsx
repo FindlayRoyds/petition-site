@@ -2,7 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import { Card, StyledBody, StyledAction } from "baseui/card";
 import {DarkTheme, LightTheme, useStyletron} from "baseui"
 import {Heading, HeadingLevel} from 'baseui/heading';
-import { Button } from "baseui/button";
+import { Button, KIND } from "baseui/button";
 import { Petition, Category } from "../types"; // Import the Petition interface
 import { Skeleton } from 'baseui/skeleton';
 import { Block } from "baseui/block";
@@ -16,6 +16,8 @@ import { StyledDivider, SIZE } from "baseui/divider";
 import axios from 'axios';
 import SupportTierList from '../components/SupportTierList';
 import PetitionCard from '../components/PetitionCard';
+import {usePersistentStore} from "../store"
+import {Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE as MODAL_SIZE} from "baseui/modal";
 
 
 export default function PetitionPage() {
@@ -24,6 +26,7 @@ export default function PetitionPage() {
     const [petition, setPetition] = useState<PetitionAdvanced>()
     // const date = new Date(petition.creationDate);
     // const formattedDate = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+    const user = usePersistentStore(state => state.user)
 
     const [isImageLoaded, setImageLoaded] = React.useState(false);
     const image = new Image();
@@ -34,6 +37,7 @@ export default function PetitionPage() {
     const [formattedDate, setFormattedDate] = useState<String>("")
     const [similarPetitions, setSimilarPetitions] = useState<Petition[]>([])
     const [categories, setCategories] = useState<Category[]>([])
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
     const navigate = useNavigate()
 
@@ -45,6 +49,19 @@ export default function PetitionPage() {
             }, (error) => {
                 console.log("error :(")
             })
+    }
+
+    const deletePetition = () => {
+        let apiRequest = `http://localhost:4941/api/v1/petitions/${petitionId}`
+        axios.delete(apiRequest, {
+            headers: {
+                'X-Authorization': user.token // Add this line
+            }
+        }).then((response) => {
+            navigate("/")
+        }, (error) => {
+            console.log("error :(")
+        })
     }
 
     React.useEffect(() => {
@@ -154,6 +171,19 @@ export default function PetitionPage() {
                     </div>
                 </div>
             </div>
+            
+            {user != null && petition?.ownerId == user.userId &&
+                <div>
+                    <Button
+                        onClick={() => {
+                            setIsDeleteModalOpen(true)
+                        }}
+                    >
+                        Delete petition
+                    </Button>
+                    <Button>Edit petition</Button>
+                </div>
+            }
 
             <StyledDivider $size={SIZE.section} className={css({ width: "100%"})} />
 
@@ -223,6 +253,29 @@ export default function PetitionPage() {
                 }
             </div>
             }
+
+            <Modal
+                onClose={() => setIsDeleteModalOpen(false)}
+                closeable={true}
+                isOpen={isDeleteModalOpen}
+                animate
+                autoFocus
+                size={MODAL_SIZE.default}
+                role={ROLE.dialog}
+            >
+                <ModalHeader>Are you sure you want to delete this petition?</ModalHeader>
+                <ModalBody>
+                    This action is permenant and cannot be undone.
+                </ModalBody>
+                <ModalFooter>
+                    <ModalButton kind={KIND.secondary} onClick={() => { setIsDeleteModalOpen(false) }}>
+                        Cancel
+                    </ModalButton>
+                    <ModalButton onClick={() => { deletePetition() }}>
+                        Delete
+                    </ModalButton>
+                </ModalFooter>
+            </Modal>
         </div>
     )
 }
